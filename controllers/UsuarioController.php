@@ -131,7 +131,7 @@ class UsuarioController extends Controller {
          $this->model->id = $id;
         
         if ($this->model->activar()) {
-            $_SESSION['success'] = "Usuario activado exitosamente";
+            $_SESSION['success'] = "Usuario modificado exitosamente";
         } else {
             $_SESSION['error'] = "Error al activar usuario";
         }

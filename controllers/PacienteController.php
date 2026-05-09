@@ -25,11 +25,8 @@ class PacienteController extends Controller
             $this->model->nombre = $_POST['nombre'];
             $this->model->cedula = $_POST['cedula'];
             $this->model->fecha_nacimiento = $_POST['fecha_nacimiento'];  
-            if ($_SESSION['user']['rol_nombre'] =='Invitado'){
-                $this->model->usuario_id = $_SESSION['user']['id'];
-            }else{
-                $this->model->usuario_id = 0;
-            }            
+            
+                $this->model->usuario_id = $_SESSION['user']['id'];           
 
             if ($this->model->cedulaExists($this->model->cedula)) {
                 $_SESSION['error'] = "El paciente ya existe";

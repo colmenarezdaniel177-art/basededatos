@@ -88,6 +88,19 @@ if (isset($usuarios) && $usuarios->rowCount() > 0) {
                                             data-bs-toggle="tooltip" title="Eliminar usuario">
                                             <i class="fas fa-trash"></i> Eliminar
                                         </a>
+                                        <?php if ($usuario['status'] == 1): ?>
+                                            <a href="index.php?controller=usuario&action=activar&id=<?php echo $usuario['id']; ?>"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                title="Desactivar Usuario">
+                                                <i class="fas fa-toggle-on text-success"></i> Activar
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="index.php?controller=usuario&action=activar&id=<?php echo $usuario['id']; ?>"
+                                                class="btn btn-sm btn-outline-danger"
+                                                title="Activar Usuario">
+                                                <i class="fas fa-toggle-off"></i> Desactivar
+                                            </a>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>

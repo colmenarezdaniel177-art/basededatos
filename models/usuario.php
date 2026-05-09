@@ -120,7 +120,7 @@ class UsuarioModel
         } else {
             $query = "SELECT id FROM " . $this->table_name . " WHERE login = :login  AND id != :exclude_id";
             $stmt = $this->conn->prepare($query);
-            $$stmt->bindParam(":login", $login);
+            $stmt->bindParam(":login", $login);
             $stmt->bindParam(":exclude_id", $exclude_id);
         }
 
@@ -164,7 +164,7 @@ class UsuarioModel
     }
     public function activar()
     {
-        $query = "UPDATE " . $this->table_name . " SET status=0 WHERE id = ?";
+        $query = "UPDATE " . $this->table_name . " SET status = 1 - status WHERE id = ?";
         $stmt = $this->conn->prepare($query);        
          $stmt->bindParam(1, $this->id);     
         if ($stmt->execute()) {
