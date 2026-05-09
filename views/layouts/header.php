@@ -56,6 +56,9 @@
                             <li><a class="dropdown-item" href="index.php?controller=especialista&action=index">Especialistas</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=especialidad&action=index">Especialidad</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=cita&action=index">Citas</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=status_Cita&action=index">status Cita</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=Tipo_Antecedente&action=index">Tipo Antecedente</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=Medicamento&action=index">Medicamento</a></li>
                         </ul>
                     </li>                    
                 </ul>
