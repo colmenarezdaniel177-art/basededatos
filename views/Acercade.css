@@ -1,0 +1,168 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif;
+
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #fff;
+  }
+
+/* Header */
+header {
+  background: #00BFFF;
+  padding: 15px 0;
+}
+
+header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  margin: auto;
+  flex-wrap: wrap;
+}
+
+/* Botón hamburguesa */
+.menu-toggle {
+    font-size: 1.8rem;
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    top: 15px;
+    right: 15px;
+    z-index: 1100; /* más alto que el menú */
+  }
+  
+  
+ 
+  nav {
+    position: fixed;
+    top: 0;
+    right: -250px; /* fuera de pantalla */
+    width: 250px;
+    height: 100%;
+    background: #00BFFF;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 15px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    display: flex; /* importante para que flex-direction funcione */
+  }
+  
+  /* Cuando se activa el menú */
+  nav.show {
+    right: 0;
+  }
+  
+  /* Estilo de los enlaces */
+  nav .btn {
+    display: block; /* cada enlace ocupa su propia línea */
+    text-decoration: none;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 6px;
+    transition: background 0.3s;
+    font-size: 1rem;
+  }
+  
+  /* Hover */
+  nav .btn:hover {
+    background: #E0B0FF;
+  }
+  
+  /* Responsive: mostrar botón hamburguesa en móviles */
+  @media (max-width: 768px) {
+    .menu-toggle {
+      display: block;
+    }
+  }
+  
+header nav button a:hover {
+    background: rgb(237, 123, 255);
+}
+
+
+
+#hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.color-acento {
+    color: crimson;
+    font-weight: bold;
+}
+
+/* Contenedor del quiz */
+.quiz-contenedor {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    
+}
+
+/* Pregunta */
+.pregunta {
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    transition: background-color 0.3s;
+}
+
+/* Ocultar radios */
+.pregunta input[type="radio"] {
+    display: none;
+}
+
+/* Labels */
+.pregunta label {
+    display: block;
+    padding: 10px;
+    margin: 25px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #aaa;
+    transition: background-color 0.3s;
+}
+
+/* Hover sobre label */
+.pregunta label:hover {
+    background-color: #ddd;
+}
+
+/* Cambiar color de toda la pregunta según la opción seleccionada */
+.pregunta:has(input.correcta:checked) {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.pregunta:has(input.incorrecta:checked) {
+    background-color: #f44336;
+    color: white;
+}
+
+/* Footer */
+footer {
+    background: #111;
+    color: #fff;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 40px;
+}
+
+footer .container {
+    width: 90%;
+    margin: auto;
+}

@@ -1,0 +1,199 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Roboto", sans-serif;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Asegura que el contenido ocupe toda la altura de la ventana */
+  background-image: linear-gradient(to bottom, #ffffff, #f0e5ff, #e9c8ff, #e9a8ff, #ee83ff); /* Fondo degradado continuo */
+}
+
+/* Colores personalizados */
+:root {
+  --azul-claro: #00BFFF; /* Azul claro del header */
+  --azul-oscuro: #4682B4; /* Azul oscuro para contraste */
+  --rosa-pastel: #F2C6D9; /* Rosa pastel */
+  --blanco: #FFFFFF; /* Blanco */
+  --gris-suave: #F7F7F7; /* Gris suave para fondos */
+  --gris-claro: #F1F1F1; /* Gris claro */
+  --rosa-footer: #EE83FF; /* Rosa del footer */
+}
+
+/* Logo */
+.logo {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--azul-oscuro);
+  text-align: center;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4); /* Sombra suave para el logo */
+}
+
+/* Header */
+header {
+  background: var(--blanco); /* Fondo azul claro */
+  padding: 15px 0;
+}
+
+header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  margin: auto;
+  flex-wrap: wrap;
+}
+
+/* Botón hamburguesa */
+.menu-toggle {
+  font-size: 2rem;
+  background: var(--rosa-pastel); /* Fondo suave similar al de la página */
+  border: none;
+  color: #fff; /* Letras blancas para buen contraste */
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 6px; /* Bordes redondeados */
+  transition: background 0.3s ease;
+}
+
+/* Hover sobre el botón hamburguesa */
+.menu-toggle:hover {
+  background: var(--azul-oscuro); /* Cambia a azul oscuro al hacer hover */
+}
+
+/* Menú de navegación */
+nav {
+  position: fixed;
+  top: 0;
+  right: -250px; /* fuera de pantalla */
+  width: 250px;
+  height: 100%;
+  background: var(--azul-oscuro); /* Fondo oscuro para el menú */
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+  gap: 15px;
+  transition: right 0.3s ease;
+  z-index: 1000;
+  display: flex;
+}
+
+nav.show {
+  right: 0;
+}
+
+/* Estilo de los enlaces dentro del menú */
+nav .btn {
+  display: block;
+  text-decoration: none;
+  color: #fff; /* Letras blancas para asegurar contraste */
+  padding: 10px 15px;
+  border-radius: 6px;
+  transition: background 0.3s;
+  font-size: 1rem;
+  background: var(--rosa-pastel);
+}
+
+/* Hover */
+nav .btn:hover {
+  background: #E0B0FF;
+}
+
+/* Flecha horizontal dentro del menú */
+.close-menu {
+  font-size: 2rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 10px;
+  display: none; /* Inicialmente oculta */
+}
+
+/* Contenedor del quiz */
+.quiz-contenedor {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background: var(--blanco);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Pregunta */
+.pregunta {
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: background-color 0.3s;
+}
+
+/* Ocultar radios */
+.pregunta input[type="radio"] {
+  display: none;
+}
+
+/* Labels */
+.pregunta label {
+  display: block;
+  padding: 10px;
+  margin: 25px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid #aaa;
+  transition: background-color 0.3s;
+}
+
+/* Hover sobre label */
+.pregunta label:hover {
+  background-color: #ddd;
+}
+
+/* Cambiar color de toda la pregunta según la opción seleccionada */
+.pregunta:has(input.correcta:checked) {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.pregunta:has(input.incorrecta:checked) {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Footer */
+footer {
+  background: var(--rosa-footer); /* Rosa del footer */
+  color: #000; /* Letras negras */
+  text-align: center;
+  padding: 15px 0;
+  margin-top: 40px;
+}
+
+footer .container {
+  width: 90%;
+  margin: auto;
+}
+
+/* 🔹 Media Queries */
+@media (max-width: 768px) {
+  /* Ajustes para el menú hamburguesa */
+  .menu-toggle {
+    display: block;
+  }
+
+  /* Ajustes en el tamaño de la fuente de las preguntas */
+  .quiz-contenedor h2 {
+    font-size: 2rem;
+  }
+  .pregunta h3 {
+    font-size: 1.2rem;
+  }
+
+  .pregunta label {
+    font-size: 1rem;
+  }
+}
