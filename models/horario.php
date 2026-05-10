@@ -23,8 +23,7 @@ class HorarioModel {
     }
     
     public function saveSchedule($especialistaId, $dias) {
-        try {
-            $this->conn->beginTransaction();
+        try {            
             $deleteQuery = "DELETE FROM " . $this->table_name . " WHERE especialistaId = ?";
             $deleteStmt = $this->conn->prepare($deleteQuery);
             $deleteStmt->execute([$especialistaId]);
@@ -44,11 +43,8 @@ class HorarioModel {
                     $insertStmt->execute();
                 }
             }
-
-            $this->conn->commit();
             return true;
-        } catch (Exception $e) {
-            $this->conn->rollBack();
+        } catch (Exception $e) {            
             return false;
         }
     }

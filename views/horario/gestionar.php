@@ -9,7 +9,7 @@ require_once '../views/layouts/header.php';
         <a href="index.php?controller=especialista&action=index" class="btn btn-outline-secondary btn-sm">Volver</a>
     </div>
     <div class="card-body">
-        <form method="POST" action="index.php?controller=horario&action=gestionar">
+        <form method="POST" action="index.php?controller=horario&action=gestionar&id=<?php echo $especialistaId; ?>">        
             <input type="hidden" name="especialistaId" value="<?php echo $especialistaId; ?>">
             
             <div class="table-responsive">

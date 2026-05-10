@@ -7,13 +7,14 @@ class HorarioController extends Controller {
         $this->redirect('index.php?controller=especialista&action=index');
     }
 
-    public function gestionar($id = null) {
+    public function gestionar($id = null) {        
         if (!$id) $id = $_GET['id'] ?? null;
 
-        if (!$id) {
+        if (!$id) {            
             $this->redirect('index.php?controller=especialista&action=index');
             return;
         }
+       
 
 
         $stmt = $this->model->readByEspecialista($id);
@@ -23,17 +24,19 @@ class HorarioController extends Controller {
         }
 
         if ($_POST) {
+                         
             $especialistaId = $_POST['especialistaId'];
             $dias = $_POST['dias']; // Array proveniente del formulario
 
             if ($this->model->saveSchedule($especialistaId, $dias)) {
                 $_SESSION['success'] = "Horario actualizado correctamente";
-                $this->redirect("index.php?controller=horario&action=gestionar&id=$especialistaId");
+                 $this->redirect('index.php?controller=especialista&action=index');
                 return;
             } else {
                 $_SESSION['error'] = "Error al guardar el horario";
             }
         }
+        
 
         $this->loadView('horario/gestionar', [
             'especialistaId' => $id,

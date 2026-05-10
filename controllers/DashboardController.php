@@ -4,7 +4,7 @@ require_once 'Controller.php';
 class DashboardController extends Controller {
     private $db;
     
-    public function __construct() {
+    public function __construct() { 
         $database = new Database();
         $this->db = $database->getConnection();
     }
