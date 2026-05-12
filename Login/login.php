@@ -5,11 +5,11 @@ $message = '';
 $messageClass = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
+    $username = trim($_POST['username']);
     $password = $_POST['password'];
-    $user = get_user($email);    
+    $user = get_user($username);    
     if (!$user || !password_verify($password, $user['password_hash'])) {
-        $message = "Email o contraseña incorrectos.";
+        $message = "username o contraseña incorrectos.";
         $messageClass = "error";
     } else {       
          $_SESSION['user'] = [
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1>Bienvenido a <span class="highlight">Ozono Vital</span></h1>
     <?php if ($message) echo "<p class='message $messageClass'>$message</p>"; ?>
     <form method="POST">
-        <input type="email" name="email" placeholder="Email" required>
+        <input type="text" name="username" placeholder="Username" required>
         <input type="password" name="password" placeholder="Contraseña" required>
         <button type="submit">Iniciar sesión</button>
     </form>
