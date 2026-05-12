@@ -21,6 +21,16 @@ class HorarioModel {
         $stmt->execute();
         return $stmt;
     }
+
+    public function readHorarios($especialistaId) {
+    $query = "SELECT dia_semana, hora_inicio, hora_fin FROM " . $this->table_name . " WHERE especialistaId = ?";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(1, $especialistaId);
+    $stmt->execute();
+    
+    // Retornamos todos los horarios del especialista como un array de objetos
+    return $stmt->fetchAll(PDO::FETCH_OBJ);
+}
     
     public function saveSchedule($especialistaId, $dias) {
         try {            
