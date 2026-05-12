@@ -71,6 +71,10 @@ if (isset($especialistas) && $especialistas->rowCount() > 0) {
                                         onclick="return confirm('¿Está seguro de eliminar este especialista?')">
                                         <i class="fas fa-trash"></i> Eliminar
                                     </a>
+                                    <a href="index.php?controller=horario&action=gestionar&id=<?php echo $especialista['id']; ?>" 
+                                        class="btn btn-outline-info btn-sm">
+                                        <i class="fas fa-calendar-alt"></i> Horario
+                                    </a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

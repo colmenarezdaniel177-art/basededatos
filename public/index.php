@@ -49,7 +49,7 @@ $action = $_GET['action'] ?? 'index';
 
 // Lista de controladores permitidos
 $allowedControllers = [
-    'rol','usuario','dashboard','test','especialista','paciente','cita','especialidad','Estatus_Cita','Tipo_Antecedente','Medicamento'  
+    'rol','usuario','dashboard','test','especialista','paciente','cita','especialidad','estatus_cita','tipo_antecedente','medicamento','horario','paciente_antecedente'
 ];
 
 if (!in_array($controller, $allowedControllers)) {

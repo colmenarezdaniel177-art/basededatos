@@ -61,6 +61,10 @@ require_once '../views/layouts/header.php';
                                         onclick="return confirm('¿Está seguro de eliminar este paciente?')">
                                         <i class="fas fa-trash"></i> Eliminar
                                     </a>
+                                    <a href="index.php?controller=paciente_antecedente&action=ver&id=<?php echo $paciente['id']; ?>" 
+                                        class="btn btn-sm btn-primary">
+                                        <i class="fas fa-file-medical"></i> Ver Antecedentes
+                                    </a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

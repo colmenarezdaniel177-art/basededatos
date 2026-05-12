@@ -13,7 +13,7 @@ class EspecialidadController extends Controller
         
         $especialidades = $this->model->read();        
         $this->loadView('especialidad/index', ['especialidades' => $especialidades]);
-    }
+    } 
 
     public function create()
     {
