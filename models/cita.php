@@ -8,7 +8,7 @@ class CitaModel
     public $paciente_id;
     public $especialista_id;
     public $fecha;
-    public $status_id;
+    public $status;
     public $nota;
     public $paciente_nombre;
     public $especialista_nombre;
@@ -27,7 +27,7 @@ class CitaModel
     public function create()
     {
         $query = "INSERT INTO " . $this->table_name . " 
-                 SET paciente_id=:paciente_id, especialista_id=:especialista_id, fecha=:fecha,status_id=:status_id,nota=:nota";
+                 SET paciente_id=:paciente_id, especialista_id=:especialista_id, fecha=:fecha,status=:status,nota=:nota";
 
         $stmt = $this->conn->prepare($query);
 
@@ -35,14 +35,14 @@ class CitaModel
         $this->paciente_id = htmlspecialchars(strip_tags($this->paciente_id));
         $this->especialista_id = htmlspecialchars(strip_tags($this->especialista_id));
         $this->fecha = htmlspecialchars(strip_tags($this->fecha));
-        $this->status_id = htmlspecialchars(strip_tags($this->status_id));
+        $this->status = htmlspecialchars(strip_tags($this->status));
         $this->nota = htmlspecialchars(strip_tags($this->nota));
 
         // Vincular parámetros
         $stmt->bindParam(":paciente_id", $this->paciente_id);
         $stmt->bindParam(":especialista_id", $this->especialista_id);
         $stmt->bindParam(":fecha", $this->fecha);
-        $stmt->bindParam(":status_id", $this->status_id);
+        $stmt->bindParam(":status", $this->status);
         $stmt->bindParam(":nota", $this->nota);
 
         if ($stmt->execute()) {
@@ -54,9 +54,8 @@ class CitaModel
     // Leer todas las Citas
     public function read()
     {
-        $query = "SELECT c.*  ,p.nombre AS paciente_nombre, e.nombre AS especialista_nombre, s.nombre as Status_Nombre FROM " . $this->table_name . " c INNER JOIN paciente p ON c.paciente_id = p.id
-        INNER JOIN especialista e ON c.especialista_id = e.id 
-        INNER JOIN estatus_cita s ON c.status_id = s.id";
+        $query = "SELECT c.*  ,p.nombre AS paciente_nombre, e.nombre AS especialista_nombre FROM " . $this->table_name . " c INNER JOIN paciente p ON c.paciente_id = p.id
+        INNER JOIN especialista e ON c.especialista_id = e.id";
         if ($_SESSION['user']['rol_nombre'] == 'Invitado') {
             $query = $query . " WHERE p.usuario_id=" . $_SESSION['user']['id'];
         }
@@ -80,7 +79,7 @@ class CitaModel
             $this->paciente_id = $row['paciente_id'];
             $this->especialista_id = $row['especialista_id'];
             $this->fecha = $row['fecha'];
-            $this->status_id = $row['status_id'];
+            $this->status = $row['status'];
             $this->nota = $row['nota'];
             return true;
         }
@@ -101,7 +100,7 @@ class CitaModel
         $this->especialista_id = htmlspecialchars(strip_tags($this->especialista_id));
         $this->fecha = htmlspecialchars(strip_tags($this->fecha));
         $this->nota = htmlspecialchars(strip_tags($this->nota));
-        $this->status_id = htmlspecialchars(strip_tags($this->status_id));
+        $this->status = htmlspecialchars(strip_tags($this->status));
         $this->id = htmlspecialchars(strip_tags($this->id));
 
         // Vincular parámetros
@@ -109,7 +108,7 @@ class CitaModel
         $stmt->bindParam(":especialista_id", $this->especialista_id);
         $stmt->bindParam(":fecha", $this->fecha);
         $stmt->bindParam(":nota", $this->nota);
-        $stmt->bindParam(":status", $this->status_id);
+        $stmt->bindParam(":status", $this->status);
         $stmt->bindParam(":id", $this->id);
 
         if ($stmt->execute()) {
@@ -173,7 +172,7 @@ class CitaModel
             $this->paciente_id = $row['paciente_id'];
             $this->especialista_id = $row['especialista_id'];
             $this->fecha = $row['fecha'];
-            $this->status_id = $row['status_id'];
+            $this->status = $row['status'];
             $this->nota = $row['nota'];        
             $this->paciente_nombre = $row['paciente_nombre'];
             $this->especialista_nombre = $row['especialista_nombre'];
@@ -204,13 +203,13 @@ public function finalizarCita() {
         $stmtH->execute();
 
         $queryCita = "UPDATE " . $this->table_name . " 
-                      SET status_id = :status_id 
+                      SET status = :status 
                       WHERE id = :id";
 
         $stmtC = $this->conn->prepare($queryCita);
         
-     // O el valor exacto de tu ENUM
-        $stmtC->bindParam(':status_id', $this->status_id);
+        $this->status = 'Completada'; // O el valor exacto de tu ENUM
+        $stmtC->bindParam(':status', $this->status);
         $stmtC->bindParam(':id', $this->id);
         
         $stmtC->execute();
@@ -218,5 +217,4 @@ public function finalizarCita() {
 
 
     }
-
 }

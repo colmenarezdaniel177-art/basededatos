@@ -20,13 +20,13 @@
       <a href="#contacto">Contacto</a>
       <a href="#faq">Preguntas</a>
 
-      <a href="#" class="btn-login mobile">Iniciar sesión</a>
-      <a href="#" class="btn-cita mobile">Pedir cita</a>
+      <a href="../Login/index.php" class="btn-login mobile">Iniciar sesión</a>
+      <a href="pedir_cita.php" class="btn-cita mobile">Pedir cita</a>
     </nav>
 
     <div class="menu-right">
       <a href="../Login/index.php" class="btn-login desktop">Iniciar sesión</a>
-      <a href="#" class="btn-cita desktop">Pedir cita</a>
+      <a href="pedir_cita.php" class="btn-cita desktop">Pedir cita</a>
       <span class="menu-toggle" id="toggle">☰</span>
     </div>
   </div>
@@ -42,7 +42,7 @@
       <div class="content">
         <h1>Confianza en ginecología </h1>
         <p>Cuidado especializado para la mujer</p>
-        <a href="#" class="btn-hero">Pide una cita</a>
+        <a href="pedir_cita.php" class="btn-hero">Pide una cita</a>
       </div>
     </div>
 

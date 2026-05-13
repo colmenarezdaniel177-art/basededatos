@@ -52,7 +52,21 @@ require_once '../views/layouts/header.php';
                                     }
                                     ?>
                                 </td>
-                              <td><?php echo htmlspecialchars($cita['Status_Nombre']); ?></td>
+                                <td>
+                                    <?php
+                                    // Asignar colores según el rol
+                                    $statusColors = [
+                                        'Cancelada' => 'danger',
+                                        'Realizada' => 'success',
+                                        'Vencida' => 'secondary',
+                                        'Vigente' => 'info',
+                                    ];                                    
+                                    $color = $statusColors[$cita['status']] ?? 'primary';
+                                    ?>
+                                    <span class="badge bg-<?php echo $color; ?>">
+                                        <?php echo htmlspecialchars($cita['status']); ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <a href="index.php?controller=cita&action=edit&id=<?php echo $cita['id']; ?>"
                                         class="btn btn-sm btn-warning">
@@ -63,7 +77,7 @@ require_once '../views/layouts/header.php';
                                         onclick="return confirm('¿Está seguro de eliminar este Cita?')">
                                         <i class="fas fa-trash"></i> Eliminar
                                     </a>
-                                    <?php if ($cita['Status_Nombre'] !== 'Completada'): ?>
+                                    <?php if ($cita['status'] !== 'Completada'): ?>
                                         <a href="index.php?controller=cita&action=atender&id=<?php echo $cita['id']; ?>"
                                         class="btn btn-sm btn-success">
                                         <i class="fas fa-stethoscope"></i> Atender

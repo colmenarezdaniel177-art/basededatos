@@ -45,8 +45,6 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="index.php?controller=usuario&action=index">Usuarios</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=rol&action=index">Roles</a></li>
-                             <li><a class="dropdown-item" href="index.php?controller=paciente&action=index">Pacientes</a></li>
-                            <li><a class="dropdown-item" href="index.php?controller=especialista&action=index">Especialistas</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -54,14 +52,13 @@
                             <i class="fas fa-hospital"></i> Médico
                         </a>
                         <ul class="dropdown-menu">
-                           
+                            <li><a class="dropdown-item" href="index.php?controller=paciente&action=index">Pacientes</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=especialista&action=index">Especialistas</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=especialidad&action=index">Especialidad</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=cita&action=index">Citas</a></li>
-
-                            <li><a class="dropdown-item" href="index.php?controller=estatus_cita&action=index">Estatus Cita</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=estatus_cita&action=index">Status Cita</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=tipo_antecedente&action=index">Tipo Antecedente</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=medicamento&action=index">Medicamento</a></li>
-
                         </ul>
                     </li>                    
                 </ul>
