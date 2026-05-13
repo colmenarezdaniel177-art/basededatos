@@ -118,7 +118,6 @@ CREATE TABLE IF NOT EXISTS `cita` (
   CONSTRAINT `FK_Paciente` FOREIGN KEY (`paciente_id`) REFERENCES `paciente` (`id`),
   CONSTRAINT `FK_cita_estatus_cita` FOREIGN KEY (`status_id`) REFERENCES `estatus_cita` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `antecedentes_medicos`;
 CREATE TABLE IF NOT EXISTS `antecedentes_medicos` (
