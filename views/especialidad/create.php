@@ -16,6 +16,19 @@ require_once '../views/layouts/header.php';
             </div>
             
             <div class="card-body">
+
+        <div class="mb-4 text-end">
+
+            <a href="../controllers/ReportePDFController.php"
+                 target="_blank"
+                class="btn btn-danger">
+
+                <i class="fas fa-file-pdf"></i>
+                Descargar Reporte PDF
+
+             </a>
+
+        </div>
                 <?php if (isset($_SESSION['error'])): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <i class="fas fa-exclamation-circle me-2"></i>

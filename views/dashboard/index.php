@@ -221,6 +221,14 @@
                             </div>
                         </div>
 
+                        <a href="http://localhost/Ozono_vital/controllers/ReportePDFController.php"
+                            target="_blank"
+                            class="btn btn-danger">
+
+                            Descargar PDF
+
+                        </a>
+
                     </div>
 
                 </div>
