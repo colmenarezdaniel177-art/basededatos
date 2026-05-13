@@ -103,4 +103,13 @@ class Estatus_CitaModel {
         $stmt->execute();
         return $stmt->rowCount() > 0;
     }
+
+    
+    public function getStatusIdByName($nombre) {
+        $query = "SELECT id FROM estatus_cita WHERE nombre = ? LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$nombre]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? $row['id'] : null;
+    }
 }

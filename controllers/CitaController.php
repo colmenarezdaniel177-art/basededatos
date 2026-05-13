@@ -6,6 +6,7 @@ class CitaController extends Controller
     private $pacienteModel;
     private $especialistaModel;
     private $horarioModel;
+    private $statuCitaModel;
     public function __construct($model)
     {
         parent::__construct($model);
@@ -13,11 +14,13 @@ class CitaController extends Controller
         require_once '../models/Paciente.php';
         require_once '../models/Especialista.php';
         require_once '../models/horario.php';
+        require_once '../models/estatus_cita.php';
         $database = new Database();
         $db = $database->getConnection();
         $this->pacienteModel = new PacienteModel($db);
         $this->especialistaModel = new EspecialistaModel($db);
         $this->horarioModel = new HorarioModel($db);
+        $this->statuCitaModel = new Estatus_CitaModel($db);
     }
 
     public function index()
@@ -40,9 +43,15 @@ class CitaController extends Controller
             $this->model->paciente_id = $_POST['paciente_id'];
             $this->model->especialista_id = $_POST['especialista_id'];
             $this->model->fecha = $_POST['fecha'];
-            $this->model->status = 1;
             $this->model->nota = $_POST['nota'];
 
+            $statusId = $this->statuCitaModel->getStatusIdByName('Programada');
+            if ($statusId) {
+                $this->model->status_id = $statusId;
+            } else {
+                // Valor por defecto en caso de que no exista en la BD
+                $this->model->status_id = 1;
+            }
 
             $fecha = new DateTime($this->model->fecha);
             $diascita = $fecha->format('N');
@@ -85,6 +94,8 @@ class CitaController extends Controller
         }
         $this->loadView('cita/create', ['especialistas' => $this->GetEspecialistas(), 'pacientes' => $this->GetPacientes()]);
     }
+
+
 
     public function create2()
     {
@@ -234,9 +245,9 @@ class CitaController extends Controller
             $this->model->motivo_consulta = $_POST['motivo_consulta'];
             $this->model->tratamiento = $_POST['tratamiento'];
             $this->model->observaciones = $_POST['observaciones'];
-
+            $statusId = $this->statuCitaModel->getStatusIdByName('Completada');
             // Cambiamos el status a uno de los valores de tu ENUM
-            $this->model->status = 'Completada';
+            $this->model->status_id = $statusId;
 
             if ($this->model->finalizarCita()) {
                 $_SESSION['success'] = "Consulta finalizada y guardada correctamente.";
