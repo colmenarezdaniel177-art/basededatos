@@ -138,7 +138,7 @@ class CitaController extends Controller
             $this->model->paciente_id = $_POST['paciente_id'];
             $this->model->especialista_id = $_POST['especialista_id'];
             $this->model->fecha = $_POST['fecha'];
-            $this->model->status = $_POST['status'];
+            $this->model->status_id = $_POST['status_id'];
             $this->model->nota = $_POST['nota'];
             if ($this->model->cita_Exists($this->model->paciente_id, $this->model->especialista_id, $this->model->fecha, $this->model->id)) {
                 $_SESSION['error'] = "Ya existe otro registro con esas caracteristicas";
@@ -158,7 +158,7 @@ class CitaController extends Controller
             'paciente_id' => $this->model->paciente_id,
             'especialista_id' => $this->model->especialista_id,
             'fecha' => $this->model->fecha,
-            'status' => $this->model->status,
+            'status_id' => $this->model->status_id,
             'nota' => $this->model->nota,
         ];
         $this->loadView('cita/edit', ['cita' => $cita, 'especialistas' => $this->GetEspecialistas(), 'pacientes' => $this->GetPacientes(), 'listStatus' => $this->GetStatus()]);
@@ -225,16 +225,7 @@ class CitaController extends Controller
 
     public function GetStatus()
     {
-        return [
-            'Programada',
-            'Confirmada',
-            'En Espera',
-            'En Consulta',
-            'Completada',
-            'Cancelada',
-            'No Asistió',
-            'Reprogramada'
-        ];
+        return $this->statuCitaModel->read();
     }
 
     public function guardarConsulta()

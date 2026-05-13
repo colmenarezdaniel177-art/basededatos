@@ -8,7 +8,7 @@ class CitaModel
     public $paciente_id;
     public $especialista_id;
     public $fecha;
-    public $status_id;
+    public $status_id; 
     public $nota;
     public $paciente_nombre;
     public $especialista_nombre;
@@ -69,7 +69,7 @@ class CitaModel
     // Leer una Cita por ID
     public function readOne()
     {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE id = ? LIMIT 0,1";
+        $query = "SELECT * FROM " . $this->table_name . "  WHERE id = ? LIMIT 0,1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $this->id);
         $stmt->execute();
@@ -91,7 +91,7 @@ class CitaModel
     public function update()
     {
         $query = "UPDATE " . $this->table_name . " 
-                 SET paciente_id=:paciente_id, especialista_id=:especialista_id, fecha=:fecha ,nota=:nota,status=:status
+                 SET paciente_id=:paciente_id, especialista_id=:especialista_id, fecha=:fecha ,nota=:nota,status_id=:status_id
                  WHERE id=:id";
 
         $stmt = $this->conn->prepare($query);
@@ -109,7 +109,7 @@ class CitaModel
         $stmt->bindParam(":especialista_id", $this->especialista_id);
         $stmt->bindParam(":fecha", $this->fecha);
         $stmt->bindParam(":nota", $this->nota);
-        $stmt->bindParam(":status", $this->status_id);
+        $stmt->bindParam(":status_id", $this->status_id);
         $stmt->bindParam(":id", $this->id);
 
         if ($stmt->execute()) {

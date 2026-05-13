@@ -86,18 +86,19 @@ $fecha_formateada = formatearFechaParaInput($cita['fecha']);
                 <div class="row">
                     <div class="mb-3">
                         <label for="status" class="form-label">Status *</label>
-                        <select class="form-select" id="status" name="status" required>
+                        <select class="form-select" id="status_id" name="status_id" required>
                             <option value="">Seleccione un status</option>
-                            <?php foreach ($listStatus as $st): ?>
-                                <option value="<?php echo htmlspecialchars($st); ?>"
-                                    <?php echo ($st === $cita['status']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($st); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <div class="form-text">
-                            Seleccione la especialidad del profesional
-                        </div>
+                            <?php if (!empty($listStatus)): ?>
+                                <?php foreach ($listStatus as $st): ?>
+                                    <option value="<?php echo $st['id']; ?>"
+                                        <?php echo $st['id'] == $cita['status_id'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($st['nombre']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled>No hay status disponibles</option>
+                            <?php endif; ?>
+                        </select>                        
                     </div>
                 </div>
                 <div class="row">
