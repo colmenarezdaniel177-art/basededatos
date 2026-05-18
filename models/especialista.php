@@ -132,5 +132,20 @@ class EspecialistaModel {
 
 
     }
+        public function consultarRendimientoEspecialistas($inicio, $fin) {
+        $query = "SELECT e.id, e.nombre, COUNT(c.id) AS total_citas 
+                  FROM " . $this->table_name . " e
+                  LEFT JOIN cita c ON e.id = c.especialista_id AND c.fecha BETWEEN :inicio AND :fin
+                  GROUP BY e.id, e.nombre
+                  ORDER BY total_citas DESC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":inicio", $inicio);
+        $stmt->bindParam(":fin", $fin);
+        $stmt->execute();
+        
+        return $stmt;
+    }
+
 }
 ?>

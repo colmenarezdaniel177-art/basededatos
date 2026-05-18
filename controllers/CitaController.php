@@ -249,4 +249,279 @@ class CitaController extends Controller
             }
         }
     }
+    public function reportePacientes() {
+        $fecha_inicio = isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : date('Y-m-01');
+        $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : date('Y-m-t');
+
+        // 1. Si el usuario solicita descargar el PDF del reporte operacional
+        if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
+            require_once dirname(__DIR__) . "/config/database.php"; 
+            require_once dirname(__DIR__) . "/public/fpdf/fpdf.php";
+            require_once dirname(__DIR__) . "/models/cita.php";
+
+            $database = new Database();
+            $db = $database->getConnection();
+            $citaModel = new CitaModel($db);
+
+            $stmt = $citaModel->consultarCitasPorRango($fecha_inicio, $fecha_fin);
+            $totalRegistros = $stmt->rowCount();
+
+            $pdf = new FPDF('P', 'mm', 'A4');
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 16);
+
+            $pdf->Cell(0, 10, utf8_decode('Sistema Clínico - Ozono Vital'), 0, 1, 'C');
+            $pdf->SetFont('Arial', '', 12);
+            $pdf->Cell(0, 8, utf8_decode("Reporte de Pacientes Atendidos"), 0, 1, 'C');
+            $pdf->Cell(0, 8, utf8_decode("Período: $fecha_inicio al $fecha_fin"), 0, 1, 'C');
+            $pdf->Ln(5);
+
+            $pdf->SetFillColor(232, 232, 232);
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->Cell(25, 8, 'ID Cita', 1, 0, 'C', true);
+            $pdf->Cell(65, 8, 'Paciente', 1, 0, 'L', true);
+            $pdf->Cell(65, 8, 'Doctor Especialista', 1, 0, 'L', true);
+            $pdf->Cell(35, 8, 'Fecha', 1, 1, 'C', true);
+
+            $pdf->SetFont('Arial', '', 10);
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $pdf->Cell(25, 7, $row['id'], 1, 0, 'C');
+                $pdf->Cell(65, 7, utf8_decode($row['paciente_nombre']), 1, 0, 'L');
+                $pdf->Cell(65, 7, utf8_decode($row['especialista_nombre']), 1, 0, 'L');
+                $pdf->Cell(35, 7, $row['fecha'], 1, 1, 'C');
+            }
+
+            $pdf->Ln(5);
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->Cell(0, 8, utf8_decode("Total de pacientes atendidos: " . $totalRegistros), 0, 1, 'L');
+
+            if (ob_get_contents()) ob_end_clean();
+            $pdf->Output('I', "Reporte_Citas_{$fecha_inicio}_a_{$fecha_fin}.pdf");
+            exit;
+        }
+
+        // 2. Si es una carga web normal, inicializa y conecta la vista
+        $title = "Reporte de Pacientes Atendidos"; 
+        require_once dirname(__DIR__) . "/config/database.php"; 
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        include_once dirname(__DIR__) . "/views/layouts/header.php";
+        include_once dirname(__DIR__) . "/views/cita/pacientes_atendidos.php";
+        include_once dirname(__DIR__) . "/views/layouts/footer.php";
+    }
+
+
+    public function reporteAgenda() {
+        $especialista_id = isset($_GET['especialista_id']) ? intval($_GET['especialista_id']) : 0;
+        $fecha_inicio = isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : date('Y-m-01');
+        $fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : date('Y-m-t');
+
+        // 1. Si el usuario solicita descargar el PDF de la agenda
+        if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
+            require_once dirname(__DIR__) . "/config/database.php"; 
+            require_once dirname(__DIR__) . "/public/fpdf/fpdf.php";
+            require_once dirname(__DIR__) . "/models/cita.php";
+
+            $database = new Database();
+            $db = $database->getConnection();
+            $citaModel = new CitaModel($db);
+
+            // Obtener el nombre del especialista de forma limpia
+            $nomeMedico = "No especificado";
+            if ($especialista_id > 0) {
+                $qMed = "SELECT nombre FROM especialista WHERE id = ?";
+                $sMed = $db->prepare($qMed);
+                $sMed->execute([$especialista_id]);
+                if($rMed = $sMed->fetch(PDO::FETCH_ASSOC)) {
+                    $nomeMedico = $rMed['nombre'];
+                }
+            }
+
+            $stmt = $citaModel->consultarAgendaPorEspecialista($especialista_id, $fecha_inicio, $fecha_fin);
+            $total = $stmt->rowCount();
+
+            $pdf = new FPDF('P', 'mm', 'A4');
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 16);
+
+            $pdf->Cell(0, 10, utf8_decode('Ozono Vital - Control de Citas'), 0, 1, 'C');
+            $pdf->SetFont('Arial', '', 12);
+            $pdf->Cell(0, 8, utf8_decode("Agenda Operacional del Especialista"), 0, 1, 'C');
+            $pdf->Cell(0, 8, utf8_decode("Médico: " . $nomeMedico), 0, 1, 'C');
+            $pdf->Cell(0, 8, utf8_decode("Período: $fecha_inicio al $fecha_fin"), 0, 1, 'C');
+            $pdf->Ln(5);
+
+            $pdf->SetFillColor(232, 232, 232);
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->Cell(20, 8, 'ID Cita', 1, 0, 'C', true);
+            $pdf->Cell(70, 8, 'Paciente', 1, 0, 'L', true);
+            $pdf->Cell(45, 8, 'Fecha Asignada', 1, 0, 'C', true);
+            $pdf->Cell(50, 8, 'Estado', 1, 1, 'C', true);
+
+            $pdf->SetFont('Arial', '', 10);
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $pdf->Cell(20, 7, $row['id'], 1, 0, 'C');
+                $pdf->Cell(70, 7, utf8_decode($row['paciente_nombre']), 1, 0, 'L');
+                $pdf->Cell(45, 7, $row['fecha'], 1, 0, 'C');
+                $pdf->Cell(50, 7, utf8_decode($row['status']), 1, 1, 'C');
+            }
+
+            $pdf->Ln(5);
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->Cell(0, 8, utf8_decode("Total de citas agendadas: " . $total), 0, 1, 'L');
+
+            if (ob_get_contents()) ob_end_clean();
+            $pdf->Output('I', "Agenda_Especialista_{$especialista_id}.pdf");
+            exit;
+        }
+
+        // 2. Carga normal en pantalla HTML
+        $title = "Agenda por Especialista"; 
+        require_once dirname(__DIR__) . "/config/database.php"; 
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        include_once dirname(__DIR__) . "/views/layouts/header.php";
+        include_once dirname(__DIR__) . "/views/cita/agenda_especialista.php"; 
+        include_once dirname(__DIR__) . "/views/layouts/footer.php";
+    }
+
+
+    public function reporteFichaPaciente() {
+        // 1. Detectar si el usuario presionó el botón de descargar PDF de la ficha
+        if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
+            $paciente_id = isset($_GET['paciente_id']) ? intval($_GET['paciente_id']) : 0;
+
+            if ($paciente_id === 0) {
+                die("ID de paciente no válido.");
+            }
+
+            require_once dirname(__DIR__) . "/config/database.php"; 
+            require_once dirname(__DIR__) . "/public/fpdf/fpdf.php";
+            require_once dirname(__DIR__) . "/models/paciente.php";
+
+            $database = new Database();
+            $db = $database->getConnection();
+            $pacienteModel = new PacienteModel($db);
+            $stmt = $pacienteModel->consultarAntecedentesPaciente($paciente_id);
+            
+            $antecedentes = [];
+            $nombre = "No especificado";
+            $cedula = "No especificada";
+
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $nombre = $row['nombre'];
+                $cedula = $row['cedula'];
+                if (!empty($row['antecedente'])) {
+                    $antecedentes[] = $row;
+                }
+            }
+
+            $pdf = new FPDF('P', 'mm', 'A4');
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 16);
+
+            $pdf->Cell(0, 10, utf8_decode('Ozono Vital - Ficha Clínica'), 0, 1, 'C');
+            $pdf->SetFont('Arial', '', 12);
+            $pdf->Cell(0, 8, utf8_decode("Ficha Operacional de Antecedentes Médicos"), 0, 1, 'C');
+            $pdf->Ln(5);
+
+            $pdf->SetFillColor(245, 245, 245);
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->Cell(0, 7, utf8_decode("DATOS DEL PACIENTE"), 0, 1, 'L', true);
+            $pdf->SetFont('Arial', '', 10);
+            $pdf->Cell(40, 7, utf8_decode("Nombre y Apellido:"), 0, 0, 'L');
+            $pdf->Cell(0, 7, utf8_decode($nombre), 0, 1, 'L');
+            $pdf->Cell(40, 7, utf8_decode("Cédula de Identidad:"), 0, 0, 'L');
+            $pdf->Cell(0, 7, utf8_decode($cedula), 0, 1, 'L');
+            $pdf->Ln(5);
+
+            $pdf->SetFillColor(232, 232, 232);
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->Cell(190, 8, utf8_decode('Descripción del Antecedente Médico'), 1, 1, 'L', true);
+
+            $pdf->SetFont('Arial', '', 10);
+            if (count($antecedentes) > 0) {
+                foreach ($antecedentes as $ant) {
+                    $pdf->Cell(190, 7, utf8_decode($ant['antecedente']), 1, 1, 'L');
+                }
+            } else {
+                $pdf->Cell(190, 7, utf8_decode('No registra antecedentes médicos en el sistema.'), 1, 1, 'C');
+            }
+
+            if (ob_get_contents()) ob_end_clean();
+            $pdf->Output('I', "Ficha_Paciente_{$cedula}.pdf");
+            exit;
+        }
+
+        // 2. Si no es descarga, procesar la carga normal de la pantalla HTML
+        $title = "Antecedentes por Paciente"; 
+        require_once dirname(__DIR__) . "/config/database.php"; 
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        include_once dirname(__DIR__) . "/views/layouts/header.php";
+        include_once dirname(__DIR__) . "/views/cita/ficha_paciente.php"; 
+        include_once dirname(__DIR__) . "/views/layouts/footer.php";
+    }
+
+        public function reporteGerencialMensual() {
+        $anio = isset($_GET['anio']) ? intval($_GET['anio']) : date('Y');
+
+        // 1. Si el usuario solicita descargar el PDF Gerencial
+        if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
+            require_once dirname(__DIR__) . "/config/database.php"; 
+            require_once dirname(__DIR__) . "/public/fpdf/fpdf.php";
+
+            $database = new Database();
+            $db = $database->getConnection();
+            
+            $query = "SELECT MONTH(fecha) AS mes_num, COUNT(*) AS total_citas 
+                      FROM cita 
+                      WHERE YEAR(fecha) = :anio
+                      GROUP BY MONTH(fecha)
+                      ORDER BY mes_num ASC";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(":anio", $anio, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $pdf = new FPDF('P', 'mm', 'A4');
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 16);
+
+            $pdf->Cell(0, 10, utf8_decode('Ozono Vital - Reporte Gerencial Directivo'), 0, 1, 'C');
+            $pdf->SetFont('Arial', '', 12);
+            $pdf->Cell(0, 8, utf8_decode("Estadística de Volumen Mensual de Consultas - Año " . $anio), 0, 1, 'C');
+            $pdf->Ln(5);
+
+            $pdf->SetFillColor(232, 232, 232);
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->Cell(60, 8, 'Mes de Analisis', 1, 0, 'C', true);
+            $pdf->Cell(130, 8, utf8_decode('Total de Consultas Atendidas'), 1, 1, 'C', true);
+
+            $pdf->SetFont('Arial', '', 10);
+            $meses = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $nombre_mes = $meses[$row['mes_num']];
+                $pdf->Cell(60, 7, $nombre_mes, 1, 0, 'C');
+                $pdf->Cell(130, 7, $row['total_citas'], 1, 1, 'C');
+            }
+
+            if (ob_get_contents()) ob_end_clean();
+            $pdf->Output('I', "Reporte_Gerencial_Mensual_{$anio}.pdf");
+            exit;
+        }
+
+        // 2. Carga normal en pantalla HTML
+        $title = "Volumen Mensual Gerencial"; 
+        require_once dirname(__DIR__) . "/config/database.php"; 
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        include_once dirname(__DIR__) . "/views/layouts/header.php";
+        include_once dirname(__DIR__) . "/views/cita/reporte_gerencial_mensual.php"; 
+        include_once dirname(__DIR__) . "/views/layouts/footer.php";
+    }
 }

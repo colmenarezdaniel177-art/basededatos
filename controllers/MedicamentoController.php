@@ -94,4 +94,6 @@ class MedicamentoController extends Controller
 
         $this->redirect('index.php?controller=medicamento&action=index');
     }
+
+
 }

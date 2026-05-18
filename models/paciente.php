@@ -131,4 +131,20 @@ class PacienteModel
         $stmt->execute();
         return $stmt->rowCount() > 0;
     }
+
+    public function consultarAntecedentesPaciente($paciente_id) {
+        $query = "SELECT p.nombre, p.cedula, a.descripcion AS antecedente 
+                  FROM " . $this->table_name . " p
+                  LEFT JOIN antecedentes_medicos a ON p.id = a.paciente_id
+                  WHERE p.id = :paciente_id";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":paciente_id", $paciente_id, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt;
+    }
+
+
+
 }

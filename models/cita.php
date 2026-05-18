@@ -15,7 +15,7 @@ class CitaModel
 
     
     public $motivo_consulta;
-    public $tratamiento;
+    public $diagnostico;
     public $observaciones;
 
     public function __construct($db)
@@ -188,17 +188,17 @@ class CitaModel
 public function finalizarCita() {
 
         // 1. Insertar en historia_clinica
-        $queryHistoria = "INSERT INTO historia_clinica 
+        $queryHistoria = "INSERT INTO consulta 
                           SET cita_id = :cita_id, 
                               motivo_consulta = :motivo_consulta, 
-                              tratamiento = :tratamiento, 
+                              diagnostico = :diagnostico, 
                               observaciones = :observaciones";
 
         $stmtH = $this->conn->prepare($queryHistoria);
         
         $stmtH->bindParam(':cita_id', $this->id);
         $stmtH->bindParam(':motivo_consulta', $this->motivo_consulta);
-        $stmtH->bindParam(':tratamiento', $this->tratamiento);
+        $stmtH->bindParam(':diagnostico', $this->diagnostico);
         $stmtH->bindParam(':observaciones', $this->observaciones);
         
         $stmtH->execute();
@@ -218,5 +218,60 @@ public function finalizarCita() {
 
 
     }
+
+
+    public function consultarCitasPorRango($inicio, $fin) {
+        $query = "SELECT c.id, p.nombre AS paciente_nombre, e.nombre AS especialista_nombre, c.fecha 
+                  FROM " . $this->table_name . " c
+                  INNER JOIN paciente p ON c.paciente_id = p.id
+                  INNER JOIN especialista e ON c.especialista_id = e.id
+                  WHERE c.fecha BETWEEN :inicio AND :fin
+                  ORDER BY c.fecha ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":inicio", $inicio);
+        $stmt->bindParam(":fin", $fin);
+        $stmt->execute();
+        
+        return $stmt; // Retorna el objeto Statement para recorrer los registros con fetch()
+    }
+
+        public function consultarAgendaPorEspecialista($especialista_id, $inicio, $fin) {
+        $query = "SELECT c.id, p.nombre AS paciente_nombre, c.fecha, sc.nombre, c.nota 
+                  FROM " . $this->table_name . " c
+                  INNER JOIN paciente p ON c.paciente_id = p.id
+                  INNER JOIN estatus_cita sc ON c.status_id = sc.id 
+                  WHERE c.especialista_id = :especialista_id 
+                    AND c.fecha BETWEEN :inicio AND :fin
+                  ORDER BY c.fecha ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":especialista_id", $especialista_id, PDO::PARAM_INT);
+        $stmt->bindParam(":inicio", $inicio);
+        $stmt->bindParam(":fin", $fin);
+        $stmt->execute();
+        
+        return $stmt;
+    }
+
+    public function consultarCitasCanceladas($inicio, $fin) {
+        $query = "SELECT c.id, p.nombre AS paciente_nombre, e.nombre AS especialista_nombre, c.fecha, sc.nombre AS status , c.nota 
+                  FROM " . $this->table_name . " c
+                  INNER JOIN paciente p ON c.paciente_id = p.id
+                  INNER JOIN especialista e ON c.especialista_id = e.id
+                  INNER JOIN estatus_cita sc ON c.status_id = sc.id
+                  WHERE c.fecha BETWEEN :inicio AND :fin 
+                    AND sc.nombre IN ('Cancelada', 'Ausente', 'No Asistio')
+                  ORDER BY c.fecha ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":inicio", $inicio);
+        $stmt->bindParam(":fin", $fin);
+        $stmt->execute();
+        
+        return $stmt;
+    }
+
+
 
 }

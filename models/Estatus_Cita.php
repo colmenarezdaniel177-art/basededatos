@@ -112,4 +112,22 @@ class Estatus_CitaModel {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? $row['id'] : null;
     }
+    
+      public function consultarCitasCanceladasYAusentes($inicio, $fin) {
+        // Consulta las citas cruzando datos según sus estados de inasistencia o cancelación
+        $query = "SELECT c.id, p.nombre AS paciente_nombre, e.nombre AS especialista_nombre, c.fecha, c.status, c.nota 
+                  FROM cita c
+                  INNER JOIN paciente p ON c.paciente_id = p.id
+                  INNER JOIN especialista e ON c.especialista_id = e.id
+                  WHERE c.fecha BETWEEN :inicio AND :fin 
+                    AND c.status IN ('Cancelada', 'Ausente', 'No Asistio')
+                  ORDER BY c.fecha ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":inicio", $inicio);
+        $stmt->bindParam(":fin", $fin);
+        $stmt->execute();
+        
+        return $stmt;
+    }
 }

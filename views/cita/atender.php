@@ -37,7 +37,7 @@ require_once '../views/layouts/header.php';
                         
                         <div class="col-md-12 mb-3">
                             <label class="form-label fw-bold">Diagnóstico / Tratamiento</label>
-                            <textarea class="form-control" name="tratamiento" rows="4" required placeholder="Medicamentos o indicaciones"></textarea>
+                            <textarea class="form-control" name="diagnostico" rows="4" required placeholder="Medicamentos o indicaciones"></textarea>
                         </div>
 
                         <div class="col-md-12 mb-3">
