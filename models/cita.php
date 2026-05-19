@@ -185,16 +185,17 @@ class CitaModel
         return false;
     }
 
-public function finalizarCita() {
+public function finalizarCita($medicamentos = [], $indicaciones = []) {
 
-        // 1. Insertar en historia_clinica
-        $queryHistoria = "INSERT INTO consulta 
+        
+        $queryConsulta = "INSERT INTO consulta 
                           SET cita_id = :cita_id, 
                               motivo_consulta = :motivo_consulta, 
                               diagnostico = :diagnostico, 
                               observaciones = :observaciones";
 
-        $stmtH = $this->conn->prepare($queryHistoria);
+        $stmtH = $this->conn->prepare($queryConsulta);
+      
         
         $stmtH->bindParam(':cita_id', $this->id);
         $stmtH->bindParam(':motivo_consulta', $this->motivo_consulta);
@@ -202,6 +203,25 @@ public function finalizarCita() {
         $stmtH->bindParam(':observaciones', $this->observaciones);
         
         $stmtH->execute();
+        $consulta_id = $this->conn->lastInsertId();
+
+          if (!empty($medicamentos)) {
+            $sqlDetalle = "INSERT INTO diagnostico (consulta_id, medicamento_id, indicaciones) 
+                           VALUES (:consulta_id, :medicamento_id, :indicaciones)";
+            $stmtDetalle = $this->conn->prepare($sqlDetalle);
+            foreach ($medicamentos as $index => $medicamento_id) {                
+                if (empty($medicamento_id)) continue; 
+
+                $stmtDetalle->execute([
+                    ':consulta_id' => $consulta_id,
+                    ':medicamento_id' => $medicamento_id,
+                    ':indicaciones' => $indicaciones[$index] ?? ''
+                ]);
+            }
+        }
+
+
+
 
         $queryCita = "UPDATE " . $this->table_name . " 
                       SET status_id = :status_id 
@@ -214,6 +234,39 @@ public function finalizarCita() {
         $stmtC->bindParam(':id', $this->id);
         
         $stmtC->execute();
+
+
+        $queryAntecedentes = "INSERT INTO antecedentes_medicos 
+                              SET paciente_id = :paciente_id, 
+                                  descripcion = :descripcion, 
+                                  notas_adicionales = :notas_adicionales, 
+                                  tipo_antecedente_id =:tipo_antecedente_id,
+                                  fecha = NOW()";
+
+        $queryBuscarPaciente = "SELECT paciente_id FROM " . $this->table_name . " WHERE id = :cita_id LIMIT 1";
+        $stmtP = $this->conn->prepare($queryBuscarPaciente);
+        $stmtP->execute([':cita_id' => $this->id]);        
+        $resultadoCita = $stmtP->fetch(PDO::FETCH_ASSOC);        
+        $paciente_id = $resultadoCita['paciente_id'];
+
+        $queryTipoAntecedente = "SELECT id FROM tipo_antecedente WHERE nombre = :nombreA LIMIT 1";
+        $stmtTA = $this->conn->prepare($queryTipoAntecedente);
+        $stmtTA->execute([':nombreA' => 'Tratamiento']);        
+        $resultadoTA = $stmtTA->fetch(PDO::FETCH_ASSOC);        
+        $tipo_antecedente_id = $resultadoTA['id'];
+
+        $stmtA = $this->conn->prepare($queryAntecedentes);
+        $stmtA->bindParam(':paciente_id', $paciente_id); 
+        $stmtA->bindParam(':descripcion', $this->diagnostico);
+        $stmtA->bindParam(':tipo_antecedente_id', $tipo_antecedente_id);
+        $stmtA->bindParam(':notas_adicionales', $this->observaciones);
+
+        $stmtA->execute();
+
+
+
+
+
         return true;
 
 

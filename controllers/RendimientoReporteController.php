@@ -9,6 +9,10 @@ require_once dirname(__DIR__) . "/models/especialista.php";
 require_once dirname(__DIR__) . "/public/fpdf/fpdf.php";
 
 class RendimientoReporteController {
+// ... Todo el resto de tu código permanece exactamente igual
+
+
+class RendimientoReporteController {
 
     public function generarPdf() {
         $inicio = isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : date('Y-m-01');

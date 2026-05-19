@@ -7,6 +7,7 @@ class CitaController extends Controller
     private $especialistaModel;
     private $horarioModel;
     private $statuCitaModel;
+    private $medicamentoModel;
     public function __construct($model)
     {
         parent::__construct($model);
@@ -15,12 +16,14 @@ class CitaController extends Controller
         require_once '../models/Especialista.php';
         require_once '../models/horario.php';
         require_once '../models/estatus_cita.php';
+        require_once '../models/medicamento.php';
         $database = new Database();
         $db = $database->getConnection();
         $this->pacienteModel = new PacienteModel($db);
         $this->especialistaModel = new EspecialistaModel($db);
         $this->horarioModel = new HorarioModel($db);
         $this->statuCitaModel = new Estatus_CitaModel($db);
+        $this->medicamentoModel = new MedicamentoModel($db);
     }
 
     public function index()
@@ -206,11 +209,10 @@ class CitaController extends Controller
             'id' => $this->model->id,
             'paciente_nombre' => $this->model->paciente_nombre,
             'especialista_nombre' => $this->model->especialista_nombre,
-            'fecha' => $this->model->fecha
+            'fecha' => $this->model->fecha            
         ];
 
-
-        $this->loadView('cita/atender', ['cita' => $cita]);
+        $this->loadView('cita/atender', ['cita' => $cita, 'medicamentos' => $this->GetMedicamentos()]);
     }
 
 
@@ -228,19 +230,26 @@ class CitaController extends Controller
         return $this->statuCitaModel->read();
     }
 
+     public function GetMedicamentos()
+    {
+        return $this->medicamentoModel->read()->fetchAll(PDO::FETCH_ASSOC);;        
+    }
+
     public function guardarConsulta()
     {
         if ($_POST) {
             // Asignamos los valores recibidos del formulario al modelo
             $this->model->id = $_POST['cita_id'];
             $this->model->motivo_consulta = $_POST['motivo_consulta'];
-            $this->model->tratamiento = $_POST['tratamiento'];
+            $this->model->diagnostico = $_POST['diagnostico'];
             $this->model->observaciones = $_POST['observaciones'];
+            $medicamentos = $_POST['medicamentos'] ?? [];
+            $indicaciones = $_POST['indicaciones'] ?? [];
             $statusId = $this->statuCitaModel->getStatusIdByName('Completada');
             // Cambiamos el status a uno de los valores de tu ENUM
             $this->model->status_id = $statusId;
 
-            if ($this->model->finalizarCita()) {
+            if ($this->model->finalizarCita($medicamentos, $indicaciones)) {
                 $_SESSION['success'] = "Consulta finalizada y guardada correctamente.";
                 $this->redirect('index.php?controller=cita&action=index');
             } else {

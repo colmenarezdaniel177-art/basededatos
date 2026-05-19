@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `especialidad` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(75) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `estatus_cita`;
 CREATE TABLE IF NOT EXISTS `estatus_cita` (
@@ -18,14 +18,6 @@ CREATE TABLE IF NOT EXISTS `estatus_cita` (
   `nombre` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Volcando datos para la tabla bd_ozonovital.estatus_cita: ~5 rows (aproximadamente)
-INSERT INTO `estatus_cita` (`id`, `nombre`) VALUES
-	(4, 'Pendiente'),
-	(5, 'Confirmada'),
-	(6, 'Cancelada'),
-	(7, 'Programada'),
-	(8, 'Completada');
 
 DROP TABLE IF EXISTS `medicamento`;
 CREATE TABLE IF NOT EXISTS `medicamento` (
@@ -41,17 +33,12 @@ CREATE TABLE IF NOT EXISTS `rol` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `rol` (`id`, `nombre`) VALUES
-	(1, 'Administrador'),
-	(2, 'Invitado');
-
-
 DROP TABLE IF EXISTS `tipo_antecedente`;
 CREATE TABLE IF NOT EXISTS `tipo_antecedente` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE IF NOT EXISTS `usuarios` (
@@ -63,10 +50,8 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK_ROL` (`rol_id`) USING BTREE,
   CONSTRAINT `FK_rol` FOREIGN KEY (`rol_id`) REFERENCES `rol` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `usuarios` (`id`, `login`, `password_hash`, `rol_id`, `status`) VALUES
-	(1, 'admin@local.com', '$2y$10$Ytj7ygxUSpDuaqVV27pUtOkvoWndrXxP6LztwcLO5Wyu6tKYcTUGO', 1, 0);
 	
 DROP TABLE IF EXISTS `especialista`;
 CREATE TABLE IF NOT EXISTS `especialista` (
@@ -76,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `especialista` (
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK_especialista_especialidad` (`especialidad_id`),
   CONSTRAINT `FK_especialista_especialidad` FOREIGN KEY (`especialidad_id`) REFERENCES `especialidad` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `horario`;
 CREATE TABLE IF NOT EXISTS `horario` (
@@ -88,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `horario` (
   PRIMARY KEY (`id`),
   KEY `FK_horario_especialista` (`especialistaId`),
   CONSTRAINT `FK_horario_especialista` FOREIGN KEY (`especialistaId`) REFERENCES `especialista` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `paciente`;
 CREATE TABLE IF NOT EXISTS `paciente` (
@@ -97,10 +82,11 @@ CREATE TABLE IF NOT EXISTS `paciente` (
   `cedula` int(11) NOT NULL,
   `fecha_nacimiento` datetime NOT NULL,
   `usuario_id` int(11) DEFAULT 0,
+  `fecha_registro` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK_paciente_usuarios` (`usuario_id`),
   CONSTRAINT `FK_paciente_usuarios` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `cita`;
 CREATE TABLE IF NOT EXISTS `cita` (
@@ -117,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `cita` (
   CONSTRAINT `FK_Especialista` FOREIGN KEY (`especialista_id`) REFERENCES `especialista` (`id`),
   CONSTRAINT `FK_Paciente` FOREIGN KEY (`paciente_id`) REFERENCES `paciente` (`id`),
   CONSTRAINT `FK_cita_estatus_cita` FOREIGN KEY (`status_id`) REFERENCES `estatus_cita` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `antecedentes_medicos`;
 CREATE TABLE IF NOT EXISTS `antecedentes_medicos` (
@@ -132,32 +118,59 @@ CREATE TABLE IF NOT EXISTS `antecedentes_medicos` (
   KEY `FK_antecedentes_medicos_tipo_antecedente` (`tipo_antecedente_id`),
   CONSTRAINT `FK_antecedentes_medicos_paciente` FOREIGN KEY (`paciente_id`) REFERENCES `paciente` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK_antecedentes_medicos_tipo_antecedente` FOREIGN KEY (`tipo_antecedente_id`) REFERENCES `tipo_antecedente` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-DROP TABLE IF EXISTS `historia_clinica`;
-CREATE TABLE IF NOT EXISTS `historia_clinica` (
+DROP TABLE IF EXISTS `consulta`;
+CREATE TABLE IF NOT EXISTS `consulta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cita_id` int(11) NOT NULL,
   `motivo_consulta` text NOT NULL,
-  `tratamiento` text NOT NULL,
+  `diagnostico` text NOT NULL,
   `observaciones` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_historia_clinica_cita` (`cita_id`),
   CONSTRAINT `FK_historia_clinica_cita` FOREIGN KEY (`cita_id`) REFERENCES `cita` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `diagnostico`;
 CREATE TABLE IF NOT EXISTS `diagnostico` (
-  `id` int(11) NOT NULL,
-  `cita_id` int(11) NOT NULL,
-  `motivo_consulta` text NOT NULL,
-  `tratamiento` text NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `indicaciones` text DEFAULT NULL,
-  `notas_adicionales` text DEFAULT NULL,
+  `consulta_id` int(11) DEFAULT NULL,
   `medicamento_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `FK_diagnostico_cita` (`cita_id`),
   KEY `FK_diagnostico_medicamento` (`medicamento_id`),
-  CONSTRAINT `FK_diagnostico_cita` FOREIGN KEY (`cita_id`) REFERENCES `cita` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `FK_diagnostico_medicamento` FOREIGN KEY (`medicamento_id`) REFERENCES `medicamento` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `FK_diagnostico_consulta` (`consulta_id`),
+  CONSTRAINT `FK_diagnostico_consulta` FOREIGN KEY (`consulta_id`) REFERENCES `consulta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_diagnostico_medicamento` FOREIGN KEY (`medicamento_id`) REFERENCES `medicamento` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `especialidad` (`id`, `nombre`) VALUES
+	(7, 'Pediatria'),
+	(8, 'Cardiologia');
+
+INSERT INTO `estatus_cita` (`id`, `nombre`) VALUES
+	(4, 'Pendiente'),
+	(5, 'Confirmada'),
+	(6, 'Cancelada'),
+	(7, 'Programada'),
+	(8, 'Completada');
+
+INSERT INTO `tipo_antecedente` (`id`, `nombre`) VALUES
+	(9, 'Alergia'),
+	(10, 'Familiar'),
+	(11, 'Tratamiento');
+	
+INSERT INTO `medicamento` (`id`, `nombre`) VALUES
+	(5, 'Ibuprofeno'),
+	(6, 'Paracetamol');
+	
+INSERT INTO `rol` (`id`, `nombre`) VALUES
+	(1, 'Administrador'),
+	(2, 'Invitado');
+
+
+INSERT INTO `usuarios` (`id`, `login`, `password_hash`, `rol_id`, `status`) VALUES
+	(1, 'admin@local.com', '$2y$10$Ytj7ygxUSpDuaqVV27pUtOkvoWndrXxP6LztwcLO5Wyu6tKYcTUGO', 1, 0),
+
+	
+
