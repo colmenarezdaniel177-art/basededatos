@@ -54,13 +54,34 @@
                             <i class="fas fa-hospital"></i> Médico
                         </a>
                         <ul class="dropdown-menu">
-                           
+                            <li><a class="dropdown-item" href="index.php?controller=paciente&action=index">Pacientes</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=especialista&action=index">Especialistas</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=especialidad&action=index">Especialidad</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=cita&action=index">Citas</a></li>
 
-                            <li><a class="dropdown-item" href="index.php?controller=estatus_cita&action=index">Estatus Cita</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=estatus_cita&action=index">Status Cita</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=tipo_antecedente&action=index">Tipo Antecedente</a></li>
                             <li><a class="dropdown-item" href="index.php?controller=medicamento&action=index">Medicamento</a></li>
+
+                            
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-header font-weight-bold text-dark"><i class="fas fa-file-invoice"></i> REPORTES</li>
+                            <li><a class="dropdown-item" href="index.php?controller=cita&action=reportePacientes"><i class="fas fa-chart-line me-1"></i> Pacientes Atendidos</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=cita&action=reporteAgenda"><i class="fas fa-calendar-check me-1"></i> Agenda por Especialista</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=cita&action=reporteFichaPaciente"><i class="fas fa-id-card me-1"></i> Ficha de Antecedentes</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=especialista&action=reporteRendimiento"><i class="fas fa-chart-bar me-1"></i> Rendimiento Médicos</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=estatus_cita&action=reporteCanceladas"><i class="fas fa-times-circle me-1"></i> Citas Canceladas</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=tipo_antecedente&action=reportePorAntecedente"><i class="fas fa-microscope me-1"></i> Carga por Antecedentes</a></li>
+
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-header text-primary font-weight-bold"><i class="fas fa-crown"></i> GERENCIAL DIRECTIVO</li>
+                            <li><a class="dropdown-item" href="index.php?controller=cita&action=reporteGerencialMensual"><i class="fas fa-chart-line me-1"></i> Volumen Mensual Citas</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=paciente&action=reporteCrecimientoGerencial"><i class="fas fa-user-plus me-1"></i> Crecimiento Pacientes</a></li>
+                            <li><a class="dropdown-item" href="index.php?controller=especialidad&action=reporteEspecialidadesGerencial"><i class="fas fa-crown me-1"></i> Ranking Especialidades</a></li>
+                        
+                        </ul>
+                    </li>                    
+                </ul>
 
                         </ul>
                     </li>                    

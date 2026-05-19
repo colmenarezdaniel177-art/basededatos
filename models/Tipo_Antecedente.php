@@ -103,4 +103,19 @@ class Tipo_AntecedenteModel {
         $stmt->execute();
         return $stmt->rowCount() > 0;
     }
+
+        public function consultarPacientesPorAntecedente() {
+        // Cuenta cuántos pacientes diferentes tienen registrado cada tipo de antecedente médico
+        $query = "SELECT ta.id, ta.nombre AS antecedente_nombre, COUNT(DISTINCT am.paciente_id) AS total_pacientes
+                  FROM " . $this->table_name . " ta
+                  LEFT JOIN antecedentes_medicos am ON ta.id = am.tipo_antecedente_id
+                  GROUP BY ta.id, ta.nombre
+                  ORDER BY total_pacientes DESC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        
+        return $stmt;
+    }
+
 }

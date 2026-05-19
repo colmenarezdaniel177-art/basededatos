@@ -15,7 +15,7 @@ class CitaModel
 
     
     public $motivo_consulta;
-    public $tratamiento;
+    public $diagnostico;
     public $observaciones;
 
     public function __construct($db)
@@ -185,23 +185,43 @@ class CitaModel
         return false;
     }
 
-public function finalizarCita() {
+public function finalizarCita($medicamentos = [], $indicaciones = []) {
 
-        // 1. Insertar en historia_clinica
-        $queryHistoria = "INSERT INTO historia_clinica 
+        
+        $queryConsulta = "INSERT INTO consulta 
                           SET cita_id = :cita_id, 
                               motivo_consulta = :motivo_consulta, 
-                              tratamiento = :tratamiento, 
+                              diagnostico = :diagnostico, 
                               observaciones = :observaciones";
 
-        $stmtH = $this->conn->prepare($queryHistoria);
+        $stmtH = $this->conn->prepare($queryConsulta);
+      
         
         $stmtH->bindParam(':cita_id', $this->id);
         $stmtH->bindParam(':motivo_consulta', $this->motivo_consulta);
-        $stmtH->bindParam(':tratamiento', $this->tratamiento);
+        $stmtH->bindParam(':diagnostico', $this->diagnostico);
         $stmtH->bindParam(':observaciones', $this->observaciones);
         
         $stmtH->execute();
+        $consulta_id = $this->conn->lastInsertId();
+
+          if (!empty($medicamentos)) {
+            $sqlDetalle = "INSERT INTO diagnostico (consulta_id, medicamento_id, indicaciones) 
+                           VALUES (:consulta_id, :medicamento_id, :indicaciones)";
+            $stmtDetalle = $this->conn->prepare($sqlDetalle);
+            foreach ($medicamentos as $index => $medicamento_id) {                
+                if (empty($medicamento_id)) continue; 
+
+                $stmtDetalle->execute([
+                    ':consulta_id' => $consulta_id,
+                    ':medicamento_id' => $medicamento_id,
+                    ':indicaciones' => $indicaciones[$index] ?? ''
+                ]);
+            }
+        }
+
+
+
 
         $queryCita = "UPDATE " . $this->table_name . " 
                       SET status_id = :status_id 
@@ -214,9 +234,97 @@ public function finalizarCita() {
         $stmtC->bindParam(':id', $this->id);
         
         $stmtC->execute();
+
+
+        $queryAntecedentes = "INSERT INTO antecedentes_medicos 
+                              SET paciente_id = :paciente_id, 
+                                  descripcion = :descripcion, 
+                                  notas_adicionales = :notas_adicionales, 
+                                  tipo_antecedente_id =:tipo_antecedente_id,
+                                  fecha = NOW()";
+
+        $queryBuscarPaciente = "SELECT paciente_id FROM " . $this->table_name . " WHERE id = :cita_id LIMIT 1";
+        $stmtP = $this->conn->prepare($queryBuscarPaciente);
+        $stmtP->execute([':cita_id' => $this->id]);        
+        $resultadoCita = $stmtP->fetch(PDO::FETCH_ASSOC);        
+        $paciente_id = $resultadoCita['paciente_id'];
+
+        $queryTipoAntecedente = "SELECT id FROM tipo_antecedente WHERE nombre = :nombreA LIMIT 1";
+        $stmtTA = $this->conn->prepare($queryTipoAntecedente);
+        $stmtTA->execute([':nombreA' => 'Tratamiento']);        
+        $resultadoTA = $stmtTA->fetch(PDO::FETCH_ASSOC);        
+        $tipo_antecedente_id = $resultadoTA['id'];
+
+        $stmtA = $this->conn->prepare($queryAntecedentes);
+        $stmtA->bindParam(':paciente_id', $paciente_id); 
+        $stmtA->bindParam(':descripcion', $this->diagnostico);
+        $stmtA->bindParam(':tipo_antecedente_id', $tipo_antecedente_id);
+        $stmtA->bindParam(':notas_adicionales', $this->observaciones);
+
+        $stmtA->execute();
+
+
+
+
+
         return true;
 
 
     }
+
+
+    public function consultarCitasPorRango($inicio, $fin) {
+        $query = "SELECT c.id, p.nombre AS paciente_nombre, e.nombre AS especialista_nombre, c.fecha 
+                  FROM " . $this->table_name . " c
+                  INNER JOIN paciente p ON c.paciente_id = p.id
+                  INNER JOIN especialista e ON c.especialista_id = e.id
+                  WHERE c.fecha BETWEEN :inicio AND :fin
+                  ORDER BY c.fecha ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":inicio", $inicio);
+        $stmt->bindParam(":fin", $fin);
+        $stmt->execute();
+        
+        return $stmt; // Retorna el objeto Statement para recorrer los registros con fetch()
+    }
+
+        public function consultarAgendaPorEspecialista($especialista_id, $inicio, $fin) {
+        $query = "SELECT c.id, p.nombre AS paciente_nombre, c.fecha, sc.nombre, c.nota 
+                  FROM " . $this->table_name . " c
+                  INNER JOIN paciente p ON c.paciente_id = p.id
+                  INNER JOIN estatus_cita sc ON c.status_id = sc.id 
+                  WHERE c.especialista_id = :especialista_id 
+                    AND c.fecha BETWEEN :inicio AND :fin
+                  ORDER BY c.fecha ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":especialista_id", $especialista_id, PDO::PARAM_INT);
+        $stmt->bindParam(":inicio", $inicio);
+        $stmt->bindParam(":fin", $fin);
+        $stmt->execute();
+        
+        return $stmt;
+    }
+
+    public function consultarCitasCanceladas($inicio, $fin) {
+        $query = "SELECT c.id, p.nombre AS paciente_nombre, e.nombre AS especialista_nombre, c.fecha, sc.nombre AS status , c.nota 
+                  FROM " . $this->table_name . " c
+                  INNER JOIN paciente p ON c.paciente_id = p.id
+                  INNER JOIN especialista e ON c.especialista_id = e.id
+                  INNER JOIN estatus_cita sc ON c.status_id = sc.id
+                  WHERE c.fecha BETWEEN :inicio AND :fin 
+                    AND sc.nombre IN ('Cancelada', 'Ausente', 'No Asistio')
+                  ORDER BY c.fecha ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":inicio", $inicio);
+        $stmt->bindParam(":fin", $fin);
+        $stmt->execute();
+        
+        return $stmt;
+    }
+
+
 
 }

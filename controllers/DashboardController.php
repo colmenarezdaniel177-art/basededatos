@@ -1,141 +1,52 @@
 <?php
+require_once 'Controller.php';
 
-require_once '../config/database.php';
-
-class DashboardController {
-
+class DashboardController extends Controller {
     private $db;
-
-    public function __construct() {
-
+    
+    public function __construct() { 
         $database = new Database();
-
         $this->db = $database->getConnection();
     }
 
     public function index() {
+           try {
+        // Cargar múltiples modelos para estadísticas
+        
+        require_once '../models/Usuario.php';
+        require_once '../models/Paciente.php';
+        require_once '../models/Cita.php';
+        //require_once '../models/ClienteModel.php';
+        //require_once '../models/FacturaModel.php';
+        
+        $usuarioModel = new UsuarioModel($this->db);
+        $pacienteModel = new PacienteModel($this->db);
+        $citaModel = new CitaModel($this->db);
+        //$clienteModel = new ClienteModel($this->db);
+        //$facturaModel = new FacturaModel($this->db);
+        
+        $stats = [
+            //'total_usuarios' => $usuarioModel->getAll()->rowCount(),
+            //'total_pacientes' => $pacienteModel->getAll()->rowCount(),
+            //'total_clientes' => $clienteModel->getAll()->rowCount(),
+            //'total_citas' => $citaModel->getAll()->rowCount(),
+            //'total_facturas' => $facturaModel->getAll()->rowCount()
 
-        try {
-
-            // =========================
-            // TOTALES PRINCIPALES
-            // =========================
-
-            $query = $this->db->query("
-                SELECT COUNT(*) AS total
-                FROM usuarios
-            ");
-
-            $total_usuarios = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            $query = $this->db->query("
-                SELECT COUNT(*) AS total
-                FROM paciente
-            ");
-
-            $total_pacientes = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            $query = $this->db->query("
-                SELECT COUNT(*) AS total
-                FROM cita
-            ");
-
-            $total_citas = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            // =========================
-            // REPORTES OPERACIONALES
-            // =========================
-
-            // TOTAL ESPECIALISTAS
-            $query = $this->db->query("
-                SELECT COUNT(*) AS total
-                FROM especialista
-            ");
-
-            $total_historiales = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            // PACIENTES REGISTRADOS
-            $query = $this->db->query("
-                SELECT COUNT(*) AS total
-                FROM paciente
-            ");
-
-            $pacientes_recientes = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            // USUARIOS ACTIVOS
-            $query = $this->db->query("
-                SELECT COUNT(*) AS total
-                FROM usuarios
-            ");
-
-            $usuarios_activos = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            // =========================
-            // REPORTES SUPERVISIÓN
-            // =========================
-
-            // ESPECIALIDADES
-            $query = $this->db->query("
-                SELECT COUNT(*) AS total
-                FROM especialidad
-            ");
-
-            $total_especialidades = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            // TOTAL CITAS
-            $query = $this->db->query("
-                SELECT COUNT(*) AS total
-                FROM cita
-            ");
-
-            $total_diagnosticos = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            // ESPECIALISTAS ACTIVOS
-            $query = $this->db->query("
-                SELECT COUNT(*) AS total
-                FROM especialista
-            ");
-
-            $especialistas_activos = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            // =========================
-            // REPORTES GERENCIALES
-            // =========================
-
-            // PROMEDIO CITAS
-            $query = $this->db->query("
-                SELECT ROUND(COUNT(*) / 30, 2) AS promedio
-                FROM cita
-            ");
-
-            $promedio_citas = $query->fetch(PDO::FETCH_ASSOC)['promedio'];
-
-            // CRECIMIENTO PACIENTES
-            $query = $this->db->query("
-                SELECT COUNT(*) AS total
-                FROM paciente
-            ");
-
-            $crecimiento_pacientes = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            // OCUPACIÓN SISTEMA
-            $query = $this->db->query("
-                SELECT ROUND((COUNT(*) * 100) / 500, 2) AS porcentaje
-                FROM cita
-            ");
-
-            $ocupacion_sistema = $query->fetch(PDO::FETCH_ASSOC)['porcentaje'];
-
-            // =========================
-            // CARGAR VISTA
-            // =========================
-
-            require_once '../views/dashboard/index.php';
-
-        } catch (Exception $e) {
-
-            echo '<h2>Error Dashboard</h2>';
-            echo '<p>' . $e->getMessage() . '</p>';
+              'total_usuarios' => $usuarioModel->read()->rowCount(),
+            'total_pacientes' => $pacienteModel->read()->rowCount(),
+            'total_clientes' => 90,
+            'total_citas' => $citaModel->read()->rowCount(),
+            'total_facturas' => 200
+        ];
+        
+        $this->loadView('dashboard/index', $stats);
+         } catch (Exception $e) {
+            // Vista de fallback si hay error
+            echo "<h1>Dashboard</h1>";
+            echo "<p>Error cargando estadísticas: " . $e->getMessage() . "</p>";
+            echo "<a href='index.php?controller=usuario&action=index'>Ir a Usuarios</a>";
         }
     }
+    
 }
+?>

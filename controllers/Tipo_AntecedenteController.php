@@ -94,4 +94,64 @@ class Tipo_AntecedenteController extends Controller
 
         $this->redirect('index.php?controller=tipo_antecedente&action=index');
     }
+
+    public function reportePorAntecedente() {
+        // 1. Si se solicita descargar el PDF
+        if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
+            require_once dirname(__DIR__) . "/config/database.php"; 
+            require_once dirname(__DIR__) . "/public/fpdf/fpdf.php";
+
+            $database = new Database();
+            $db = $database->getConnection();
+            
+            // Consulta directa para el archivo PDF
+            $query = "SELECT ta.id, ta.nombre AS antecedente_nombre, COUNT(DISTINCT am.paciente_id) AS total_pacientes
+                      FROM tipo_antecedente ta
+                      LEFT JOIN antecedentes_medicos am ON ta.id = am.tipo_antecedente_id
+                      GROUP BY ta.id, ta.nombre
+                      ORDER BY total_pacientes DESC";
+            $stmt = $db->prepare($query);
+            $stmt->execute();
+
+            $pdf = new FPDF('P', 'mm', 'A4');
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 16);
+
+            $pdf->Cell(0, 10, utf8_decode('Ozono Vital - Reporte de Supervisión'), 0, 1, 'C');
+            $pdf->SetFont('Arial', '', 12);
+            $pdf->Cell(0, 8, utf8_decode("Distribución de Carga Clínica por Tipo de Antecedente"), 0, 1, 'C');
+            $pdf->Ln(5);
+
+            $pdf->SetFillColor(232, 232, 232);
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->Cell(30, 8, 'ID Tipo', 1, 0, 'C', true);
+            $pdf->Cell(110, 8, utf8_decode('Categoría de Antecedente Médico'), 1, 0, 'L', true);
+            $pdf->Cell(50, 8, 'Pacientes Registrados', 1, 1, 'C', true);
+
+            $pdf->SetFont('Arial', '', 10);
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $pdf->Cell(30, 7, $row['id'], 1, 0, 'C');
+                $pdf->Cell(110, 7, utf8_decode($row['antecedente_nombre']), 1, 0, 'L');
+                $pdf->Cell(50, 7, $row['total_pacientes'], 1, 1, 'C');
+            }
+
+            if (ob_get_contents()) ob_end_clean();
+            $pdf->Output('I', "Pacientes_Por_Antecedente.pdf");
+            exit;
+        }
+
+        // 2. Carga normal en pantalla HTML
+        $title = "Carga por Antecedentes"; 
+        require_once dirname(__DIR__) . "/config/database.php"; 
+
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        include_once dirname(__DIR__) . "/views/layouts/header.php";
+        include_once dirname(__DIR__) . "/views/Tipo_Antecedente/reporte_carga.php"; 
+        include_once dirname(__DIR__) . "/views/layouts/footer.php";
+    }
+
+
+
 }
