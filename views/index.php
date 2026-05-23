@@ -24,11 +24,21 @@
       <a href="#" class="btn-cita mobile">Pedir cita</a>
     </nav>
 
-    <div class="menu-right">
-      <a href="../Login/index.php" class="btn-login desktop">Iniciar sesión</a>
-      <a href="#" class="btn-cita desktop">Pedir cita</a>
-      <span class="menu-toggle" id="toggle">☰</span>
-    </div>
+    <?php 
+    session_start();
+    if (!isset($_SESSION['user'])): ?>
+        <a href="../Login/index.php" class="btn-login desktop">Iniciar sesión</a>
+      <?php else: ?>
+       <span class="user-name" style="color: #333; margin-left: 15px; font-weight: bold;">
+          Hola, <?php echo htmlspecialchars($_SESSION['user']['login']); ?>
+        </span>
+        <a href="#" class="btn-cita desktop">Pedir cita</a>
+        <a href="../Login/logout.php" class="btn-login desktop">Logout</a>
+      <?php endif; ?>
+
+
+      
+    
   </div>
 </header>
 

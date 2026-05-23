@@ -17,7 +17,7 @@ $user = $_SESSION['user'];
 <body>
 <section class="login-section">
     <h1>Dashboard</h1>
-    <div class="dashboard-content">
+    <div class="dashboard-content"> 
         <p>Hola, <?php echo $_SESSION['user']['login']; ?> </p>
         <p>Rol: <?php echo $_SESSION['user']['rol_nombre']; ?></p>
         <a href="logout.php"><button>Cerrar sesión</button></a>
