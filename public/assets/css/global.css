@@ -1,0 +1,47 @@
+/* RESET */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter', sans-serif;
+    background:#f1f5f9;
+    color:#0f172a;
+}
+
+/* LAYOUT */
+.main-container{
+    display:flex;
+    min-height:100vh;
+}
+
+/* CONTENT */
+.content{
+    flex:1;
+    margin-left:260px;
+    padding:35px;
+    width:calc(100% - 260px);
+}
+
+/* TITLES */
+.page-title{
+    font-size:34px;
+    font-weight:700;
+    margin-bottom:8px;
+}
+
+.dashboard-subtitle{
+    color:#64748b;
+    margin-bottom:30px;
+}
+
+/* GENERIC CARD */
+.card{
+    background:white;
+    border-radius:20px;
+    border:none;
+    padding:25px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.05);
+}

@@ -1,69 +1,144 @@
 <?php
 $title = "Crear Nuevo Paciente";
-require_once '../views/layouts/header.php';
+require_once __DIR__ . '/../layouts/header.php';
 ?>
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="card-title mb-0">
-                <i class="fa-solid fa-hospital-user"></i>Crear Paciente
-            </h4>
-            <a href="index.php?controller=paciente&action=index" class="btn btn-outline-secondary btn-sm">
-                <i class="fa-solid fa-hospital-user"></i> Volver
+<div class="main-container">
+
+    <?php require_once __DIR__ . '/../layouts/sidebar.php'; ?>
+
+    <div class="content">
+
+        <!-- HEADER -->
+        <div class="dashboard-header">
+
+            <div>
+                <h1 class="page-title">
+                    Crear Paciente
+                </h1>
+
+                <p class="dashboard-subtitle">
+                    Registre un nuevo paciente en el sistema
+                </p>
+            </div>
+
+            <a href="index.php?controller=paciente&action=index"
+                class="btn-modern btn-primary-modern">
+
+                <i class="fas fa-arrow-left"></i>
+                Volver
+
             </a>
+
         </div>
-        <div class="card-body">
+
+        <!-- FORM CARD -->
+        <div class="card" style="max-width: 900px;">
+
             <?php if (isset($_SESSION['error'])): ?>
-                <div class="alert alert-danger"><?php echo $_SESSION['error'];
-                                                unset($_SESSION['error']); ?></div>
+
+                <div class="alert alert-danger mb-4">
+
+                    <?php
+                    echo $_SESSION['error'];
+                    unset($_SESSION['error']);
+                    ?>
+
+                </div>
+
             <?php endif; ?>
-            <form method="POST" action="index.php?controller=paciente&action=create" id="pacienteForm">
-                <div class="row">
-                    <div class="col-md-9">
-                        <label for="nombre;" class="form-label">Nombre de Paciente *</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre"
-                            required maxlength="50" placeholder="Ingrese el nombre de paciente">
 
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="cedula" class="form-label">Cédula *</label>
-                            <input type="text" class="form-control" id="cedula" name="cedula"
-                                required maxlength="20" placeholder="Ingrese el número de cédula"
-                                pattern="[0-9]+" title="Solo se permiten números">
-                            <div class="form-text" id="cedulaFeedback">
-                                Ingrese solo números. Ejemplo: 12345678
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento *</label>
-                            <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento"
-                                required max="<?php echo date('Y-m-d'); ?>">
-                            <div class="form-text" id="edadFeedback">
-                                Seleccione la fecha de nacimiento
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="index.php?controller=paciente&action=index" class="btn btn-outline-secondary px-4">
-                        <i class="fas fa-times me-1"></i> Cancelar
-                    </a>
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="fas fa-save me-1"></i> Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
+           <form method="POST"
+    action="index.php?controller=paciente&action=create"
+    id="pacienteForm">
+
+    <!-- NOMBRE -->
+    <div class="mb-4">
+
+        <label for="nombre" class="form-label fw-semibold mb-2">
+            Nombre del Paciente *
+        </label>
+
+        <input type="text"
+            class="input-modern"
+            id="nombre"
+            name="nombre"
+            required
+            maxlength="50"
+            placeholder="Ingrese el nombre completo">
+
     </div>
+
+    <!-- CEDULA -->
+    <div class="mb-4">
+
+        <label for="cedula" class="form-label fw-semibold mb-2">
+            Cédula *
+        </label>
+
+        <input type="text"
+            class="input-modern"
+            id="cedula"
+            name="cedula"
+            required
+            maxlength="20"
+            placeholder="Ingrese la cédula"
+            pattern="[0-9]+"
+            title="Solo se permiten números">
+
+        <small class="form-help">
+            Ingrese solo números. Ejemplo: 12345678
+        </small>
+
+    </div>
+
+    <!-- FECHA -->
+    <div class="mb-4">
+
+        <label for="fecha_nacimiento" class="form-label fw-semibold mb-2">
+            Fecha de Nacimiento *
+        </label>
+
+        <input type="date"
+            class="input-modern"
+            id="fecha_nacimiento"
+            name="fecha_nacimiento"
+            required
+            max="<?php echo date('Y-m-d'); ?>">
+
+        <small class="form-help">
+            Seleccione la fecha de nacimiento del paciente
+        </small>
+
+    </div>
+
+    <!-- BOTONES -->
+    <div class="d-flex justify-content-end gap-3 mt-5">
+
+        <a href="index.php?controller=paciente&action=index"
+            class="btn-modern btn-danger-modern">
+
+            <i class="fas fa-times"></i>
+            Cancelar
+
+        </a>
+
+        <button type="submit"
+            class="btn-modern btn-success-modern">
+
+            <i class="fas fa-save"></i>
+            Guardar Paciente
+
+        </button>
+
+    </div>
+
+</form>
+
+        </div>
+
+    </div>
+
 </div>
-</div>
 
-
-
-<?php require_once '../views/layouts/footer.php'; ?>
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -170,7 +170,7 @@ INSERT INTO `rol` (`id`, `nombre`) VALUES
 
 
 INSERT INTO `usuarios` (`id`, `login`, `password_hash`, `rol_id`, `status`) VALUES
-	(1, 'admin@local.com', '$2y$10$Ytj7ygxUSpDuaqVV27pUtOkvoWndrXxP6LztwcLO5Wyu6tKYcTUGO', 1, 0),
+	(1, 'admin@local.com', '$2y$10$Ytj7ygxUSpDuaqVV27pUtOkvoWndrXxP6LztwcLO5Wyu6tKYcTUGO', 1, 0)
 
 	
 

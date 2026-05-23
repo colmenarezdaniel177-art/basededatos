@@ -1,0 +1,97 @@
+.sidebar{
+    width:260px;
+    height:100vh;
+    background:#020617;
+    position:fixed;
+    left:0;
+    top:0;
+    padding:30px 18px;
+    color:white;
+    overflow-y:auto;
+}
+
+/* LOGO */
+.sidebar-logo{
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:40px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:white;
+}
+
+/* MENU */
+.sidebar-menu{
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+
+.sidebar-menu li{
+    margin-bottom:12px;
+}
+
+/* LINKS */
+.sidebar-menu a{
+    text-decoration:none;
+    color:#cbd5e1;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 16px;
+    border-radius:14px;
+    transition:0.3s ease;
+    font-weight:500;
+}
+
+/* HOVER */
+.sidebar-menu a:hover{
+    background:#1e293b;
+    color:white;
+}
+
+/* ACTIVE */
+.sidebar-menu .active{
+    background:#2563eb;
+    color:white;
+}
+
+/* ICONS */
+.sidebar-menu i{
+    width:20px;
+    text-align:center;
+}
+
+/* SCROLLBAR */
+.sidebar::-webkit-scrollbar{
+    width:6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb{
+    background:#334155;
+    border-radius:10px;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+
+    .sidebar{
+        width:90px;
+        padding:20px 10px;
+    }
+
+    .sidebar-logo span{
+        display:none;
+    }
+
+    .sidebar-menu a span{
+        display:none;
+    }
+
+    .content{
+        margin-left:90px;
+        width:calc(100% - 90px);
+    }
+
+}

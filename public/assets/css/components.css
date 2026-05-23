@@ -1,0 +1,142 @@
+/* TABLE */
+.table-modern{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.table-modern thead{
+    background:#f8fafc;
+}
+
+.table-modern th{
+    text-align:left;
+    padding:18px;
+    font-size:14px;
+    color:#64748b;
+    font-weight:600;
+}
+
+.table-modern td{
+    padding:18px;
+    border-top:1px solid #e2e8f0;
+}
+
+.table-modern tbody tr:hover{
+    background:#f8fafc;
+}
+
+/* BADGES */
+.badge{
+    padding:8px 14px;
+    border-radius:30px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.badge-success{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.badge-warning{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.badge-danger{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+/* BUTTONS */
+.btn-modern{
+    border:none;
+    border-radius:12px;
+    padding:12px 18px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn-primary-modern{
+    background:#2563eb;
+    color:white;
+}
+
+.btn-primary-modern:hover{
+    background:#1d4ed8;
+}
+
+/* CARD HEADER */
+.card-header-modern{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+/* EMPTY STATE */
+.empty-state{
+    text-align:center;
+    padding:80px 20px;
+}
+
+.empty-state i{
+    font-size:70px;
+    color:#94a3b8;
+    margin-bottom:20px;
+}
+
+.empty-state h3{
+    margin-bottom:10px;
+    font-size:26px;
+}
+
+.empty-state p{
+    color:#64748b;
+    margin-bottom:25px;
+}
+
+/* ACTION BUTTONS */
+.btn-success-modern{
+    background:#22c55e;
+    color:white;
+}
+
+.btn-success-modern:hover{
+    background:#16a34a;
+}
+
+.btn-danger-modern{
+    background:#ef4444;
+    color:white;
+}
+
+.btn-danger-modern:hover{
+    background:#dc2626;
+}
+
+/* INPUT MODERNO */
+.input-modern{
+    width:100%;
+    border:1px solid #dbe2ea;
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:15px;
+    transition:0.3s ease;
+    background:white;
+}
+
+.input-modern:focus{
+    outline:none;
+    border-color:#2563eb;
+    box-shadow:0 0 0 4px rgba(37,99,235,0.10);
+}
+
+/* HELP TEXT */
+.form-help{
+    display:block;
+    margin-top:8px;
+    color:#64748b;
+    font-size:13px;
+}
