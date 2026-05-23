@@ -140,3 +140,21 @@
     color:#64748b;
     font-size:13px;
 }
+
+/* SEARCH BOX */
+.search-box{
+    position:relative;
+    width:320px;
+}
+
+.search-box i{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#94a3b8;
+}
+
+.search-input{
+    padding-left:42px;
+}

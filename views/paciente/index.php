@@ -41,16 +41,22 @@ require_once __DIR__ . '/../layouts/header.php';
                     Lista de Pacientes
                 </h4>
 
-                <input type="text"
-                    class="input-modern"
-                    placeholder="Buscar paciente..."
-                    style="max-width: 280px;">
+              <div class="search-box">
+
+    <i class="fas fa-search"></i>
+
+    <input type="text"
+        id="buscarPaciente"
+        class="input-modern search-input"
+        placeholder="Buscar por nombre o cédula...">
+
+</div>
 
             </div>
 
             <?php if ($pacientes->rowCount() > 0): ?>
 
-                <table class="table-modern">
+              <table class="table-modern" id="tablaPacientes">
 
                     <thead>
 
@@ -178,5 +184,41 @@ require_once __DIR__ . '/../layouts/header.php';
     </div>
 
 </div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const buscador = document.getElementById("buscarPaciente");
+
+    const filas = document.querySelectorAll(
+        "#tablaPacientes tbody tr"
+    );
+
+    buscador.addEventListener("keyup", function () {
+
+        const texto = this.value.toLowerCase();
+
+        filas.forEach(fila => {
+
+            const contenido = fila.textContent.toLowerCase();
+
+            if (contenido.includes(texto)) {
+
+                fila.style.display = "";
+
+            } else {
+
+                fila.style.display = "none";
+
+            }
+
+        });
+
+    });
+
+});
+
+</script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
