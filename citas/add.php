@@ -105,6 +105,13 @@ include __DIR__ . '/../includes/sidebar.php';
                   <input type="date" name="fecha" id="fechaCita" class="form-control" required min="<?= date('Y-m-d') ?>" value="<?= e($_POST['fecha'] ?? '') ?>" onchange="validarHorario()">
                   <div id="horarioMsg" class="mt-1 small"></div>
                 </div>
+                <?php if (!$isMed && !$isAdm): ?>
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <input type="hidden" name="status_id" value="1">
+                  <input type="text" class="form-control" value="Pendiente" readonly>
+                </div>
+                <?php else: ?>
                 <div class="col-md-6">
                   <label class="form-label">Status</label>
                   <select name="status_id" class="form-select">
@@ -115,6 +122,7 @@ include __DIR__ . '/../includes/sidebar.php';
                     <?php endforeach; ?>
                   </select>
                 </div>
+                <?php endif; ?>
                 <div class="col-12">
                   <label class="form-label">Motivo</label>
                   <textarea name="motivo" class="form-control" rows="2"><?= e($_POST['motivo'] ?? '') ?></textarea>

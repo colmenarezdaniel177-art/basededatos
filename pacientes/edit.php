@@ -17,6 +17,7 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre   = trim($_POST['nombre'] ?? '');
     $apellido = trim($_POST['apellido'] ?? '');
+    $cedula   = trim($_POST['cedula'] ?? '');
     $fnac     = $_POST['fecha_nacimiento'] ?? '';
     $genero   = $_POST['genero'] ?? 'M';
     $tel      = trim($_POST['telefono'] ?? '');
@@ -27,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$apellido) $errors[] = 'El apellido es obligatorio.';
 
     if (!$errors) {
-        $upd = $pdo->prepare("UPDATE pacientes SET nombre=?,apellido=?,fecha_nacimiento=?,genero=?,telefono=?,email=?,direccion=? WHERE id=?");
-        $upd->execute([$nombre, $apellido, $fnac ?: null, $genero, $tel, $email, $dir, $id]);
+        $upd = $pdo->prepare("UPDATE pacientes SET nombre=?,apellido=?,cedula=?,fecha_nacimiento=?,genero=?,telefono=?,email=?,direccion=? WHERE id=?");
+        $upd->execute([$nombre, $apellido, $cedula ?: null, $fnac ?: null, $genero, $tel, $email, $dir, $id]);
         setFlash('success', 'Paciente actualizado.');
         redirect(BASE_URL . '/pacientes/view.php?id=' . $id);
     }
@@ -64,6 +65,10 @@ include __DIR__ . '/../includes/sidebar.php';
                 <div class="col-md-6">
                   <label class="form-label">Apellido *</label>
                   <input type="text" name="apellido" class="form-control" required value="<?= e($p['apellido']) ?>">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Cédula</label>
+                  <input type="text" name="cedula" class="form-control" value="<?= e($p['cedula'] ?? '') ?>">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Fecha de nacimiento</label>

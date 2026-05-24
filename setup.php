@@ -86,6 +86,7 @@ run($pdo, "CREATE TABLE IF NOT EXISTS pacientes (
   usuario_id       INT,
   nombre           VARCHAR(100) NOT NULL,
   apellido         VARCHAR(100) NOT NULL,
+  cedula           VARCHAR(20),
   fecha_nacimiento DATE,
   genero           ENUM('M','F') DEFAULT 'M',
   telefono         VARCHAR(20),
@@ -180,9 +181,10 @@ run($pdo, "CREATE TABLE IF NOT EXISTS horarios_especialista (
   FOREIGN KEY (especialistaId) REFERENCES especialistas(id) ON DELETE CASCADE
 )", "Tabla horarios_especialista");
 
-/* Columna especialista_id en usuarios (instalaciones existentes) */
+/* Columnas adicionales para instalaciones existentes */
 run($pdo, "ALTER TABLE usuarios ADD COLUMN especialista_id INT NULL", "usuarios.especialista_id (si no existe)");
 run($pdo, "ALTER TABLE usuarios ADD CONSTRAINT fk_usr_esp FOREIGN KEY (especialista_id) REFERENCES especialistas(id) ON DELETE SET NULL", "FK usuarios.especialista_id");
+run($pdo, "ALTER TABLE pacientes ADD COLUMN cedula VARCHAR(20) NULL AFTER apellido", "pacientes.cedula (si no existe)");
 
 /* ── DATOS POR DEFECTO ───────────────────────────────────────── */
 echo '<h3>Datos por defecto</h3>';

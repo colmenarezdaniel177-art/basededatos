@@ -10,6 +10,7 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre   = trim($_POST['nombre'] ?? '');
     $apellido = trim($_POST['apellido'] ?? '');
+    $cedula   = trim($_POST['cedula'] ?? '');
     $fnac     = $_POST['fecha_nacimiento'] ?? '';
     $genero   = $_POST['genero'] ?? 'M';
     $tel      = trim($_POST['telefono'] ?? '');
@@ -20,8 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$apellido) $errors[] = 'El apellido es obligatorio.';
 
     if (!$errors) {
-        $stmt = $pdo->prepare("INSERT INTO pacientes (usuario_id, nombre, apellido, fecha_nacimiento, genero, telefono, email, direccion) VALUES (?,?,?,?,?,?,?,?)");
-        $stmt->execute([$_SESSION['user_id'], $nombre, $apellido, $fnac ?: null, $genero, $tel, $email, $dir]);
+        $stmt = $pdo->prepare("INSERT INTO pacientes (usuario_id, nombre, apellido, cedula, fecha_nacimiento, genero, telefono, email, direccion) VALUES (?,?,?,?,?,?,?,?,?)");
+        $stmt->execute([$_SESSION['user_id'], $nombre, $apellido, $cedula ?: null, $fnac ?: null, $genero, $tel, $email, $dir]);
         $id = $pdo->lastInsertId();
         setFlash('success', 'Paciente registrado correctamente.');
         redirect(BASE_URL . '/pacientes/view.php?id=' . $id);
@@ -57,6 +58,10 @@ include __DIR__ . '/../includes/sidebar.php';
                 <div class="col-md-6">
                   <label class="form-label">Apellido *</label>
                   <input type="text" name="apellido" class="form-control" required value="<?= e($_POST['apellido'] ?? '') ?>">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Cédula</label>
+                  <input type="text" name="cedula" class="form-control" value="<?= e($_POST['cedula'] ?? '') ?>">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Fecha de nacimiento</label>

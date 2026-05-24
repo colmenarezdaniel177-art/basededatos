@@ -63,6 +63,7 @@ include __DIR__ . '/../includes/sidebar.php';
             <div class="text-muted small"><?= $p['genero']==='M'?'Masculino':($p['genero']==='F'?'Femenino':'Otro') ?> &bull; <?= calcularEdad($p['fecha_nacimiento']) ?> (<?= formatDate($p['fecha_nacimiento']) ?>)</div>
           </div>
           <div class="col-auto text-end small">
+            <?php if ($p['cedula']): ?><div><i class="fa-solid fa-id-card me-1 text-muted"></i><?= e($p['cedula']) ?></div><?php endif; ?>
             <?php if ($p['telefono']): ?><div><i class="fa-solid fa-phone me-1 text-muted"></i><?= e($p['telefono']) ?></div><?php endif; ?>
             <?php if ($p['email']): ?><div><i class="fa-solid fa-envelope me-1 text-muted"></i><?= e($p['email']) ?></div><?php endif; ?>
             <?php if ($p['direccion']): ?><div><i class="fa-solid fa-location-dot me-1 text-muted"></i><?= e($p['direccion']) ?></div><?php endif; ?>

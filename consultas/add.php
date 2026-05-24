@@ -56,9 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$paciente_id && !empty($_POST['em_nombre']) && !empty($_POST['em_apellido'])) {
         $emNombre   = trim($_POST['em_nombre']);
         $emApellido = trim($_POST['em_apellido']);
-        $emTel      = trim($_POST['em_telefono'] ?? '');
-        $ins = $pdo->prepare("INSERT INTO pacientes (usuario_id, nombre, apellido, telefono) VALUES (?,?,?,?)");
-        $ins->execute([$uid, $emNombre, $emApellido, $emTel]);
+        $emCedula   = trim($_POST['em_cedula'] ?? '');
+        $ins = $pdo->prepare("INSERT INTO pacientes (usuario_id, nombre, apellido, cedula) VALUES (?,?,?,?)");
+        $ins->execute([$uid, $emNombre, $emApellido, $emCedula ?: null]);
         $paciente_id = (int)$pdo->lastInsertId();
         $emergenciaMsg = "Paciente '$emNombre $emApellido' creado automáticamente.";
     }
@@ -180,7 +180,7 @@ include __DIR__ . '/../includes/sidebar.php';
                       <div class="row g-2">
                         <div class="col-md-4"><label class="form-label">Nombre *</label><input type="text" name="em_nombre" class="form-control form-control-sm"></div>
                         <div class="col-md-4"><label class="form-label">Apellido *</label><input type="text" name="em_apellido" class="form-control form-control-sm"></div>
-                        <div class="col-md-4"><label class="form-label">Teléfono</label><input type="text" name="em_telefono" class="form-control form-control-sm"></div>
+                        <div class="col-md-4"><label class="form-label">Cédula</label><input type="text" name="em_cedula" class="form-control form-control-sm"></div>
                       </div>
                       <small class="text-muted">Se creará el paciente automáticamente al guardar la consulta.</small>
                     </div>
@@ -254,8 +254,16 @@ include __DIR__ . '/../includes/sidebar.php';
           </div>
         </div>
 
-        <!-- Agregar antecedente inline (modal) -->
+        <!-- Agregar antecedente inline -->
         <?php $tiposAnte = $pdo->query("SELECT * FROM tipo_antecedente WHERE activo=1 ORDER BY nombre")->fetchAll(); ?>
+        <?php if ($isEmergencia && !$pidPanel): ?>
+        <div class="card border-warning">
+          <div class="card-body text-center py-3">
+            <i class="fa-solid fa-triangle-exclamation fa-2x text-warning mb-2"></i>
+            <p class="small text-muted mb-0">Guarda la consulta primero.<br>Los antecedentes pueden agregarse al historial del paciente luego.</p>
+          </div>
+        </div>
+        <?php else: ?>
         <div class="card">
           <div class="card-header"><h6 class="mb-0"><i class="fa-solid fa-plus me-1 text-warning"></i>Nuevo antecedente</h6></div>
           <div class="card-body">
@@ -276,15 +284,13 @@ include __DIR__ . '/../includes/sidebar.php';
               <div class="mb-2">
                 <input type="date" name="fecha" class="form-control form-control-sm">
               </div>
-              <button type="submit" class="btn btn-warning btn-sm w-100 text-white" <?= !$pidPanel ? 'disabled' : '' ?>>
+              <button type="submit" class="btn btn-warning btn-sm w-100 text-white">
                 <i class="fa-solid fa-save me-1"></i>Guardar antecedente
               </button>
-              <?php if (!$pidPanel): ?>
-                <small class="text-muted d-block text-center mt-1">Selecciona un paciente primero</small>
-              <?php endif; ?>
             </form>
           </div>
         </div>
+        <?php endif; ?>
       </div>
     </div>
   </div>

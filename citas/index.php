@@ -9,6 +9,7 @@ requireLogin();
 $uid   = $_SESSION['user_id'];
 $isAdm = isAdmin();
 $isMed = isMedico();
+$isUsr = ($_SESSION['rol'] ?? '') === 'usuario';
 $filtro = (int)($_GET['status'] ?? 0);
 
 if ($isAdm) {
@@ -71,9 +72,24 @@ include __DIR__ . '/../includes/sidebar.php';
                 <td class="small"><?= e(mb_strimwidth($c['motivo']??'',0,40,'...')) ?></td>
                 <td><span class="badge bg-<?= e($c['estado_color']??'secondary') ?>"><?= e($c['estado_nombre']??'-') ?></span></td>
                 <td>
-                  <a href="<?= BASE_URL ?>/citas/edit.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar"><i class="fa-solid fa-pen"></i></a>
-                  <a href="<?= BASE_URL ?>/consultas/add.php?cita_id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-success me-1" title="Iniciar consulta"><i class="fa-solid fa-stethoscope"></i></a>
-                  <a href="<?= BASE_URL ?>/citas/delete.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger" data-confirm="¿Eliminar esta cita?"><i class="fa-solid fa-trash"></i></a>
+                  <?php if (!$isUsr): ?>
+                    <a href="<?= BASE_URL ?>/citas/edit.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar"><i class="fa-solid fa-pen"></i></a>
+                  <?php endif; ?>
+                  <?php if (!$isUsr): ?>
+                    <a href="<?= BASE_URL ?>/consultas/add.php?cita_id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-success me-1" title="Iniciar consulta"><i class="fa-solid fa-stethoscope"></i></a>
+                  <?php endif; ?>
+                  <?php if ($isUsr): ?>
+                    <?php
+                    $canceladaId = null;
+                    foreach ($statuses as $s) { if (strtolower($s['nombre']) === 'cancelada') { $canceladaId = $s['id']; break; } }
+                    $yaCancel = strtolower($c['estado_nombre'] ?? '') === 'cancelada';
+                    ?>
+                    <?php if (!$yaCancel && $canceladaId): ?>
+                      <a href="<?= BASE_URL ?>/citas/cancel.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger" data-confirm="¿Cancelar esta cita?"><i class="fa-solid fa-ban me-1"></i>Cancelar</a>
+                    <?php endif; ?>
+                  <?php else: ?>
+                    <a href="<?= BASE_URL ?>/citas/delete.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger" data-confirm="¿Eliminar esta cita?"><i class="fa-solid fa-trash"></i></a>
+                  <?php endif; ?>
                 </td>
               </tr>
             <?php endforeach; ?>

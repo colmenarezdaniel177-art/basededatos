@@ -10,6 +10,7 @@ $search = trim($_GET['q'] ?? '');
 $uid = $_SESSION['user_id'];
 $isAdm = isAdmin();
 $isMed = isMedico();
+$isUsr = ($_SESSION['rol'] ?? '') === 'usuario';
 
 $where = ($isAdm || $isMed) ? '1=1' : 'p.usuario_id = ' . (int)$uid;
 $params = [];
@@ -51,7 +52,7 @@ include __DIR__ . '/../includes/sidebar.php';
         <div class="table-responsive">
           <table class="table table-hover mb-0">
             <thead>
-              <tr><th>#</th><th>Nombre</th><th>Fecha Nac.</th><th>Edad</th><th>Teléfono</th><th>Email</th><?php if($isAdm): ?><th>Registrado por</th><?php endif; ?><th>Acciones</th></tr>
+              <tr><th>#</th><th>Nombre</th><th>Cédula</th><th>Fecha Nac.</th><th>Edad</th><th>Teléfono</th><th>Email</th><?php if($isAdm): ?><th>Registrado por</th><?php endif; ?><th>Acciones</th></tr>
             </thead>
             <tbody>
             <?php foreach ($pacientes as $i => $p): ?>
@@ -59,8 +60,9 @@ include __DIR__ . '/../includes/sidebar.php';
                 <td class="text-muted small"><?= $p['id'] ?></td>
                 <td>
                   <strong><?= e($p['nombre'] . ' ' . $p['apellido']) ?></strong>
-                  <div class="text-muted small"><?= $p['genero'] === 'M' ? 'Masculino' : ($p['genero'] === 'F' ? 'Femenino' : 'Otro') ?></div>
+                  <div class="text-muted small"><?= $p['genero'] === 'M' ? 'Masculino' : 'Femenino' ?></div>
                 </td>
+                <td class="small"><?= e($p['cedula'] ?? '-') ?></td>
                 <td><?= formatDate($p['fecha_nacimiento']) ?></td>
                 <td><?= calcularEdad($p['fecha_nacimiento']) ?></td>
                 <td><?= e($p['telefono'] ?? '-') ?></td>
@@ -69,7 +71,9 @@ include __DIR__ . '/../includes/sidebar.php';
                 <td>
                   <a href="<?= BASE_URL ?>/pacientes/view.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-info me-1" title="Ver historial"><i class="fa-solid fa-eye"></i></a>
                   <a href="<?= BASE_URL ?>/pacientes/edit.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar"><i class="fa-solid fa-pen"></i></a>
+                  <?php if (!$isUsr): ?>
                   <a href="<?= BASE_URL ?>/pacientes/delete.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-danger" data-confirm="¿Eliminar paciente? Esta acción no se puede deshacer." title="Eliminar"><i class="fa-solid fa-trash"></i></a>
+                  <?php endif; ?>
                 </td>
               </tr>
             <?php endforeach; ?>

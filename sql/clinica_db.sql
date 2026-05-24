@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS `pacientes` (
   `usuario_id`       INT,
   `nombre`           VARCHAR(100) NOT NULL,
   `apellido`         VARCHAR(100) NOT NULL,
+  `cedula`           VARCHAR(20),
   `fecha_nacimiento` DATE,
   `genero`           ENUM('M','F') DEFAULT 'M',
   `telefono`         VARCHAR(20),
@@ -215,7 +216,7 @@ INSERT IGNORE INTO `medicamentos` (`nombre`, `descripcion`, `dosis_sugerida`, `a
 -- Contraseña: admin123  (hash bcrypt)
 -- ------------------------------------------------------------
 INSERT IGNORE INTO `usuarios` (`nombre`, `email`, `password`, `rol_id`, `activo`) VALUES
-  ('Admin', 'admin@local.com',
-   '$2y$10$Ytj7ygxUSpDuaqVV27pUtOkvoWndrXxP6LztwcLO5Wyu6tKYcTUGO', 1, 1);
+  ('Administrador', 'admin@clinica.com',
+   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 1);
 
 SET FOREIGN_KEY_CHECKS = 1;
