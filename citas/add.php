@@ -73,7 +73,7 @@ include __DIR__ . '/../includes/sidebar.php';
           <div class="card-body">
             <?php if ($errors): ?><div class="alert alert-danger"><ul class="mb-0"><?php foreach($errors as $er) echo "<li>$er</li>"; ?></ul></div><?php endif; ?>
             <?php if (!$pacientes): ?><div class="alert alert-warning">No hay pacientes. <a href="<?= BASE_URL ?>/pacientes/add.php">Agrega uno primero</a>.</div><?php endif; ?>
-            <form method="POST">
+            <form method="POST" onsubmit="return validarAntesDeEnviar();">
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label">Paciente *</label>
@@ -140,7 +140,7 @@ include __DIR__ . '/../includes/sidebar.php';
   </div>
 </div>
 <script>
-function validarHorario() {
+function validarHorarioAnterior() {
   const espId = document.getElementById('selectEsp').value;
   const fecha  = document.getElementById('fechaCita').value;
   const msg    = document.getElementById('horarioMsg');
@@ -151,6 +151,48 @@ function validarHorario() {
       if (!d.msg) { msg.innerHTML=''; return; }
       msg.innerHTML = `<span class="text-${d.color}">${d.msg}</span>`;
     });
+}
+function validarHorario() {
+  const espId = document.getElementById('selectEsp').value;
+  const fecha = document.getElementById('fechaCita').value;
+  const msg   = document.getElementById('horarioMsg');
+  const inputFecha = document.getElementById('fechaCita');
+  
+  if (!espId || !fecha) { 
+    msg.innerHTML=''; 
+    inputFecha.setAttribute('data-valido', 'true');
+    return; 
+  }
+  
+  fetch(`<?= BASE_URL ?>/citas/check_horario.php?especialista_id=${espId}&fecha=${fecha}`)
+    .then(r => r.json())
+    .then(d => {
+      if (!d.msg) { 
+        msg.innerHTML=''; 
+        inputFecha.setAttribute('data-valido', 'true'); // Todo bien
+        return; 
+      }
+      
+      msg.innerHTML = `<span class="text-${d.color}">${d.msg}</span>`;
+      
+      // Si el color es 'danger' o el backend dice que no se puede, marcamos como inválido
+      if (d.color === 'danger') {
+        inputFecha.setAttribute('data-valido', 'false');
+      } else {
+        inputFecha.setAttribute('data-valido', 'true');
+      }
+    });
+}
+
+function validarAntesDeEnviar() {
+  const inputFecha = document.getElementById('fechaCita');
+  const esValido = inputFecha.getAttribute('data-valido');
+  
+  if (esValido === 'false') {
+    alert('Por favor, selecciona una fecha u horario disponible antes de guardar.');
+    return false; // Esto cancela el envío del formulario
+  }
+  return true; // Permite el envío
 }
 </script>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
