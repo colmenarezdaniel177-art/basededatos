@@ -19,8 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->prepare("UPDATE especialidades SET nombre=?,descripcion=? WHERE id=?")->execute([$nombre,$desc,$id]);
         setFlash('success','Especialidad actualizada.');
     } elseif ($action === 'delete' && $id) {
-        $pdo->prepare("DELETE FROM especialidades WHERE id=?")->execute([$id]);
-        setFlash('success','Especialidad eliminada.');
+
+        $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM especialistas WHERE especialidad_id = ?");
+        $stmtCheck->execute([$id]);
+        $relaciones = $stmtCheck->fetchColumn();
+        if ($relaciones > 0) {        
+          setFlash('danger', 'No se puede eliminar la especialidad porque tiene especialistas registrados.');
+        } else {
+          $pdo->prepare("DELETE FROM especialidades WHERE id=?")->execute([$id]);
+          setFlash('success','Especialidad eliminada.');
+      }
     }
     redirect(BASE_URL.'/admin/especialidades.php');
 }

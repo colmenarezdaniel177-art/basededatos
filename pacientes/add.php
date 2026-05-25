@@ -20,6 +20,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$nombre) $errors[] = 'El nombre es obligatorio.';
     if (!$apellido) $errors[] = 'El apellido es obligatorio.';
 
+    $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM pacientes WHERE cedula = ?");
+        $stmtCheck->execute([$cedula]);
+        $cedulaExiste = $stmtCheck->fetchColumn();
+
+        if ($cedulaExiste > 0) {
+            $errors[] = 'La cédula ingresada ya se encuentra registrada en el sistema.';
+        }
+
     if (!$errors) {
         $stmt = $pdo->prepare("INSERT INTO pacientes (usuario_id, nombre, apellido, cedula, fecha_nacimiento, genero, telefono, email, direccion) VALUES (?,?,?,?,?,?,?,?,?)");
         $stmt->execute([$_SESSION['user_id'], $nombre, $apellido, $cedula ?: null, $fnac ?: null, $genero, $tel, $email, $dir]);

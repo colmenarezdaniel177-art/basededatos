@@ -78,7 +78,10 @@ include __DIR__ . '/../includes/sidebar.php';
         <div class="card h-100">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5><i class="fa-solid fa-clipboard-list me-2 text-warning"></i>Antecedentes</h5>
+<?php if (isAdmin() || isMedico()): ?>
+
             <a href="<?= BASE_URL ?>/pacientes/antecedente_add.php?paciente_id=<?= $id ?>" class="btn btn-sm btn-outline-warning"><i class="fa-solid fa-plus me-1"></i>Agregar</a>
+             <?php endif; ?>
           </div>
           <div class="card-body">
             <?php if (!$antecedentes): ?>
@@ -98,7 +101,9 @@ include __DIR__ . '/../includes/sidebar.php';
                 <div class="antecedente-card border-<?= e($color) ?> mb-2">
                   <div class="d-flex justify-content-between">
                     <small class="fw-semibold"><?= e($ant['descripcion']) ?></small>
-                    <a href="<?= BASE_URL ?>/pacientes/antecedente_delete.php?id=<?= $ant['id'] ?>&paciente_id=<?= $id ?>" class="text-danger" data-confirm="¿Eliminar antecedente?"><i class="fa-solid fa-times fa-xs"></i></a>
+                    <?php if (isAdmin() || isMedico()): ?>
+                      <a href="<?= BASE_URL ?>/pacientes/antecedente_delete.php?id=<?= $ant['id'] ?>&paciente_id=<?= $id ?>" class="text-danger" data-confirm="¿Eliminar antecedente?"><i class="fa-solid fa-times fa-xs"></i></a>
+                    <?php endif; ?>
                   </div>
                   <?php if ($ant['fecha']): ?><div class="text-muted" style="font-size:.75rem"><?= formatDate($ant['fecha']) ?></div><?php endif; ?>
                 </div>

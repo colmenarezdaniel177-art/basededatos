@@ -27,6 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$nombre) $errors[] = 'El nombre es obligatorio.';
     if (!$apellido) $errors[] = 'El apellido es obligatorio.';
 
+    $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM pacientes WHERE cedula = ? AND id != ?");
+        $stmtCheck->execute([$cedula, $id]); // $id es el ID del paciente que se está editando
+        $cedulaExiste = $stmtCheck->fetchColumn();
+
+        if ($cedulaExiste > 0) {
+            $errors[] = 'La cédula ingresada ya pertenece a otro paciente registrado.';
+        }
+
     if (!$errors) {
         $upd = $pdo->prepare("UPDATE pacientes SET nombre=?,apellido=?,cedula=?,fecha_nacimiento=?,genero=?,telefono=?,email=?,direccion=? WHERE id=?");
         $upd->execute([$nombre, $apellido, $cedula ?: null, $fnac ?: null, $genero, $tel, $email, $dir, $id]);
