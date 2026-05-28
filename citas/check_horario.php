@@ -24,11 +24,28 @@ $horario = $stmt->fetch();
 $diasNombre = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
 if ($horario) {
-    echo json_encode([
-        'disponible' => true,
-        'msg' => "✔ Disponible: {$diasNombre[$diaSemana]} de {$horario['hora_inicio']} a {$horario['hora_fin']}",
-        'color' => 'success',
-    ]);
+
+    $stmtEsp = $pdo->prepare("SELECT citas_max_por_dia FROM especialistas WHERE id=?");
+    $stmtEsp->execute([$espId]);
+    $maxCitas = (int)($stmtEsp->fetchColumn() ?: 1);
+
+    $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM citas INNER JOIN status_cita ON citas.status_id = status_cita.id WHERE especialista_id=? AND DATE(fecha)=DATE(?) AND nombre != 'Cancelada'");
+    $stmtCount->execute([$espId, $fecha]);
+    $citasAgendadas = (int)$stmtCount->fetchColumn();
+    if ($citasAgendadas >= $maxCitas) {
+        echo json_encode([
+            'disponible' => false,
+            'msg' => "✘ Cupo lleno: El especialista ya alcanzó el límite máximo de {$maxCitas} citas para este día.",
+            'color' => 'danger',
+        ]);
+    }else{
+        $disponibles = $maxCitas - $citasAgendadas;
+        echo json_encode([
+            'disponible' => true,
+            'msg' => "✔ Disponible: {$diasNombre[$diaSemana]} de {$horario['hora_inicio']} a {$horario['hora_fin']} ({$disponibles} cupos restantes de {$maxCitas})",        
+            'color' => 'success',
+        ]);
+    }
 } else {
     // Check if specialist has ANY schedule
     $total = $pdo->prepare("SELECT COUNT(*) FROM horarios_especialista WHERE especialistaId=?");

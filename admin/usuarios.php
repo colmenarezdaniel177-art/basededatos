@@ -25,7 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ->execute([$nombre,$email,$hash,$rol_id,$activo,$especialista_id]);
         setFlash('success','Usuario creado.');
     } elseif ($action === 'update') {
-        if ($password) {
+        if ($uid == $_SESSION['user_id']) {
+            setFlash('danger','No puedes modificar tu propio usuario desde este panel de administración.');
+        } elseif ($password) {
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $pdo->prepare("UPDATE usuarios SET nombre=?,email=?,rol_id=?,activo=?,password=?,especialista_id=? WHERE id=?")
                 ->execute([$nombre,$email,$rol_id,$activo,$hash,$especialista_id,$uid]);
@@ -93,10 +95,11 @@ include __DIR__ . '/../includes/sidebar.php';
                 <td class="small text-muted"><?= e($u['especialista_nombre'] ?? '—') ?></td>
                 <td><?= $u['activo'] ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">Inactivo</span>' ?></td>
                 <td>
+                  <?php if ($u['id'] != $_SESSION['user_id']): ?>
                   <button class="btn btn-sm btn-outline-primary me-1"
                     onclick="editUser(<?= htmlspecialchars(json_encode($u), ENT_QUOTES) ?>)"
                     title="Editar"><i class="fa-solid fa-pen"></i></button>
-                  <?php if ($u['id'] != $_SESSION['user_id']): ?>
+                  
                   <form method="POST" class="d-inline">
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="uid" value="<?= $u['id'] ?>">

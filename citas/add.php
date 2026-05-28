@@ -32,15 +32,32 @@ $statuses      = $pdo->query("SELECT * FROM status_cita WHERE activo=1 ORDER BY 
 $errors = [];
 $preselPaciente = (int)($_GET['paciente_id'] ?? 0);
 
+// Buscar valores preseleccionados para mostrar el texto correcto en los inputs si existen
+$preselPacienteNombre = '';
+foreach ($pacientes as $pac) {
+    if ((($_POST['paciente_id'] ?? $preselPaciente) == $pac['id'])) {
+        $preselPacienteNombre = $pac['nombre'];
+        break;
+    }
+}
+
+$preselEspNombre = '';
+foreach ($especialistas as $esp) {
+    if (($_POST['especialista_id'] ?? 0) == $esp['id']) {
+        $preselEspNombre = $esp['nombre'] . ' — ' . $esp['especialidad'];
+        break;
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $paciente_id    = (int)$_POST['paciente_id'];
     $especialista_id = (int)$_POST['especialista_id'];
     $fecha    = $_POST['fecha'] ?? '';
     $motivo   = trim($_POST['motivo'] ?? '');
-    $status_id = (int)($_POST['status_id'] ?? 1);
+    $status_id = (int)$_POST['status_id'] ?? 1;
 
-    if (!$paciente_id)     $errors[] = 'Selecciona un paciente.';
-    if (!$especialista_id) $errors[] = 'Selecciona un especialista.';
+    if (!$paciente_id)     $errors[] = 'Selecciona un paciente válido de la lista.';
+    if (!$especialista_id) $errors[] = 'Selecciona un especialista válido de la lista.';
     if (!$fecha)           $errors[] = 'La fecha es obligatoria.';
 
     if (!$errors) {
@@ -73,38 +90,49 @@ include __DIR__ . '/../includes/sidebar.php';
           <div class="card-body">
             <?php if ($errors): ?><div class="alert alert-danger"><ul class="mb-0"><?php foreach($errors as $er) echo "<li>$er</li>"; ?></ul></div><?php endif; ?>
             <?php if (!$pacientes): ?><div class="alert alert-warning">No hay pacientes. <a href="<?= BASE_URL ?>/pacientes/add.php">Agrega uno primero</a>.</div><?php endif; ?>
+            
             <form method="POST" onsubmit="return validarAntesDeEnviar();">
               <div class="row g-3">
+                
                 <div class="col-12">
                   <label class="form-label">Paciente *</label>
-                  <select name="paciente_id" class="form-select" required>
-                    <option value="">Seleccionar paciente...</option>
-                    <?php foreach ($pacientes as $pac): ?>
-                      <option value="<?= $pac['id'] ?>" <?= (($_POST['paciente_id'] ?? $preselPaciente) == $pac['id']) ? 'selected' : '' ?>><?= e($pac['nombre']) ?></option>
-                    <?php endforeach; ?>
-                  </select>
+                  <input type="text" 
+                         id="pacienteInput" 
+                         class="form-control" 
+                         list="listaPacientes" 
+                         placeholder="Escribe para buscar paciente..." 
+                         autocomplete="off"
+                         oninput="syncPacienteId()"
+                         value="<?= e($preselPacienteNombre) ?>"
+                         required>
+                  <input type="hidden" name="paciente_id" id="pacienteId" value="<?= (int)($_POST['paciente_id'] ?? $preselPaciente) ?>">
                 </div>
+                
                 <div class="col-12">
                   <label class="form-label">Especialista *</label>
                   <?php if ($medicoEspecialista): ?>
                     <input type="hidden" name="especialista_id" id="selectEsp" value="<?= $medicoEspecialista['id'] ?>">
                     <input type="text" class="form-control" value="<?= e($medicoEspecialista['nombre']) ?> — <?= e($medicoEspecialista['especialidad']) ?>" readonly>
                   <?php else: ?>
-                    <select name="especialista_id" id="selectEsp" class="form-select" required onchange="validarHorario()">
-                      <option value="">Seleccionar especialista...</option>
-                      <?php foreach ($especialistas as $esp): ?>
-                        <option value="<?= $esp['id'] ?>" <?= (($_POST['especialista_id'] ?? 0) == $esp['id']) ? 'selected' : '' ?>>
-                          <?= e($esp['nombre']) ?> — <?= e($esp['especialidad']) ?>
-                        </option>
-                      <?php endforeach; ?>
-                    </select>
+                    <input type="text" 
+                           id="especialistaInput" 
+                           class="form-control" 
+                           list="listaEspecialistas" 
+                           placeholder="Escribe para buscar especialista..." 
+                           autocomplete="off"
+                           oninput="syncEspecialistaId()"
+                           value="<?= e($preselEspNombre) ?>"
+                           required>
+                    <input type="hidden" name="especialista_id" id="selectEsp" value="<?= (int)($_POST['especialista_id'] ?? 0) ?>">
                   <?php endif; ?>
                 </div>
+
                 <div class="col-md-6">
                   <label class="form-label">Fecha *</label>
                   <input type="date" name="fecha" id="fechaCita" class="form-control" required min="<?= date('Y-m-d') ?>" value="<?= e($_POST['fecha'] ?? '') ?>" onchange="validarHorario()">
                   <div id="horarioMsg" class="mt-1 small"></div>
                 </div>
+
                 <?php if (!$isMed && !$isAdm): ?>
                 <div class="col-md-6">
                   <label class="form-label">Status</label>
@@ -123,6 +151,7 @@ include __DIR__ . '/../includes/sidebar.php';
                   </select>
                 </div>
                 <?php endif; ?>
+
                 <div class="col-12">
                   <label class="form-label">Motivo</label>
                   <textarea name="motivo" class="form-control" rows="2"><?= e($_POST['motivo'] ?? '') ?></textarea>
@@ -139,7 +168,50 @@ include __DIR__ . '/../includes/sidebar.php';
     </div>
   </div>
 </div>
+
+<datalist id="listaPacientes">
+  <?php foreach ($pacientes as $pac): ?>
+    <option data-id="<?= $pac['id'] ?>" value="<?= e($pac['nombre']) ?>"></option>
+  <?php endforeach; ?>
+</datalist>
+
+<datalist id="listaEspecialistas">
+  <?php foreach ($especialistas as $esp): ?>
+    <option data-id="<?= $esp['id'] ?>" value="<?= e($esp['nombre']) ?> — <?= e($esp['especialidad']) ?>"></option>
+  <?php endforeach; ?>
+</datalist>
+
 <script>
+function syncPacienteId() {
+    const input = document.getElementById('pacienteInput');
+    const hidden = document.getElementById('pacienteId');
+    const options = document.querySelectorAll('#listaPacientes option');
+    
+    hidden.value = ""; 
+    for (const option of options) {
+        if (option.value.toLowerCase() === input.value.toLowerCase()) {
+            hidden.value = option.getAttribute('data-id');
+            break;
+        }
+    }
+}
+
+function syncEspecialistaId() {
+    const input = document.getElementById('especialistaInput');
+    const hidden = document.getElementById('selectEsp');
+    if(!input) return; // Si es médico, este input no existe
+    const options = document.querySelectorAll('#listaEspecialistas option');
+    
+    hidden.value = ""; 
+    for (const option of options) {
+        if (option.value.toLowerCase() === input.value.toLowerCase()) {
+            hidden.value = option.getAttribute('data-id');
+            break;
+        }
+    }
+    validarHorario(); // Disparar chequeo de disponibilidad en tiempo real
+}
+
 function validarHorarioAnterior() {
   const espId = document.getElementById('selectEsp').value;
   const fecha  = document.getElementById('fechaCita').value;
@@ -152,6 +224,7 @@ function validarHorarioAnterior() {
       msg.innerHTML = `<span class="text-${d.color}">${d.msg}</span>`;
     });
 }
+
 function validarHorario() {
   const espId = document.getElementById('selectEsp').value;
   const fecha = document.getElementById('fechaCita').value;
@@ -185,14 +258,29 @@ function validarHorario() {
 }
 
 function validarAntesDeEnviar() {
+  const pId = document.getElementById('pacienteId').value;
+  const eId = document.getElementById('selectEsp').value;
   const inputFecha = document.getElementById('fechaCita');
   const esValido = inputFecha.getAttribute('data-valido');
   
+  if (!pId) {
+    alert('Por favor, selecciona un paciente válido de la lista.');
+    document.getElementById('pacienteInput').focus();
+    return false;
+  }
+  
+  if (!eId) {
+    alert('Por favor, selecciona un especialista válido de la lista.');
+    const espInput = document.getElementById('especialistaInput');
+    if(espInput) espInput.focus();
+    return false;
+  }
+  
   if (esValido === 'false') {
     alert('Por favor, selecciona una fecha u horario disponible antes de guardar.');
-    return false; // Esto cancela el envío del formulario
+    return false; 
   }
-  return true; // Permite el envío
+  return true; 
 }
 </script>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

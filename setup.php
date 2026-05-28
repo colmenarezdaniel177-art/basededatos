@@ -63,6 +63,7 @@ run($pdo, "CREATE TABLE IF NOT EXISTS especialistas (
   especialidad_id INT,
   telefono        VARCHAR(20),
   email           VARCHAR(150),
+  citas_max_por_dia int(11) NOT NULL DEFAULT 1,
   activo          TINYINT(1) DEFAULT 1,
   created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (especialidad_id) REFERENCES especialidades(id)

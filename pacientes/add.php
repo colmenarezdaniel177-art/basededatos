@@ -19,6 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$nombre) $errors[] = 'El nombre es obligatorio.';
     if (!$apellido) $errors[] = 'El apellido es obligatorio.';
+    if (!ctype_digit($cedula)) {
+        $errors[] = 'La cédula debe contener solo números.';
+    } elseif (strlen($cedula) > 8) {
+        $errors[] = 'La cédula no puede superar los 8 caracteres.';
+    }
+    if (!ctype_digit($tel)) {
+        $errors[] = 'El teléfono debe contener solo números.';
+    } elseif (strlen($tel) > 11) {
+        $errors[] = 'El teléfono no puede superar los 11 caracteres.';
+    }
 
     $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM pacientes WHERE cedula = ?");
         $stmtCheck->execute([$cedula]);
@@ -69,7 +79,7 @@ include __DIR__ . '/../includes/sidebar.php';
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Cédula</label>
-                  <input type="text" name="cedula" class="form-control" value="<?= e($_POST['cedula'] ?? '') ?>">
+                  <input type="text" name="cedula" pattern="\d+" title="Solo se permiten números (máximo 8 dígitos)"  class="form-control" placeholder="Ej. 12345678" value="<?= e($_POST['cedula'] ?? '') ?>">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Fecha de nacimiento</label>
@@ -84,7 +94,14 @@ include __DIR__ . '/../includes/sidebar.php';
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Teléfono</label>
-                  <input type="text" name="telefono" class="form-control" value="<?= e($_POST['telefono'] ?? '') ?>">
+                                    <input type="text" 
+                         name="telefono" 
+                         class="form-control" 
+                         placeholder="Ej. 04121234567" 
+                         maxlength="11" 
+                         pattern="\d+" 
+                         title="Solo se permiten números (máximo 11 dígitos)"                           
+                         value="<?= e($_POST['telefono'] ?? '') ?>">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Correo electrónico</label>

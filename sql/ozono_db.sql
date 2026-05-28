@@ -10,11 +10,11 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ------------------------------------------------------------
 -- Base de datos
 -- ------------------------------------------------------------
-CREATE DATABASE IF NOT EXISTS `clinica_db`
+CREATE DATABASE IF NOT EXISTS `ozono_db`
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE `clinica_db`;
+USE `ozono_db`;
 
 -- ------------------------------------------------------------
 -- Tablas
@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `especialistas` (
   `especialidad_id` INT,
   `telefono`        VARCHAR(20),
   `email`           VARCHAR(150),
+  `citas_max_por_dia` int(11) NOT NULL DEFAULT 1,
   `activo`          TINYINT(1)   DEFAULT 1,
   `created_at`      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`especialidad_id`) REFERENCES `especialidades`(`id`)

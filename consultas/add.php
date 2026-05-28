@@ -14,7 +14,7 @@ $isMed = isMedico();
 // Para médico: cargar su especialista asignado
 $medicoEspecialista = null;
 if ($isMed && $_SESSION['especialista_id']) {
-    $stmtMe = $pdo->prepare("SELECT id, CONCAT(nombre,' ',apellido) AS nombre FROM especialistas WHERE id=?");
+    $stmtMe = $pdo->prepare("SELECT id, CONCAT(nombre,' ',apellido) AS nombre FROM專 especialistas WHERE id=?");
     $stmtMe->execute([$_SESSION['especialista_id']]);
     $medicoEspecialista = $stmtMe->fetch();
 }
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Antecedentes previas del paciente
+// Antecedentes previos del paciente
 $antecedentesConsulta = [];
 $pidAnte = $cita['paciente_id'] ?? $preselPaciente ?? 0;
 if ($pidAnte) {
@@ -123,7 +123,7 @@ include __DIR__ . '/../includes/sidebar.php';
         <div class="card">
           <div class="card-header"><h5>Datos de la Consulta</h5></div>
           <div class="card-body">
-            <form method="POST" id="formConsulta">
+            <form method="POST" id="formConsulta" onsubmit="return validarMedsAntesDeEnviar();">
               <input type="hidden" name="cita_id" value="<?= $citaId ?>">
               <div class="row g-3">
 
@@ -165,7 +165,6 @@ include __DIR__ . '/../includes/sidebar.php';
                 </div>
 
                 <?php if ($isEmergencia): ?>
-                <!-- Panel emergencia: crear paciente si no existe -->
                 <div class="col-12">
                   <div class="card border-warning">
                     <div class="card-header bg-warning bg-opacity-10">
@@ -205,19 +204,26 @@ include __DIR__ . '/../includes/sidebar.php';
                   <textarea name="observaciones" class="form-control" rows="2"><?= e($_POST['observaciones'] ?? '') ?></textarea>
                 </div>
 
-                <!-- Medicamentos -->
                 <div class="col-12">
                   <label class="form-label fw-bold">Medicamentos recetados</label>
                   <div id="meds-container">
                     <div class="row g-2 mb-2 med-row align-items-center">
-                      <div class="col-md-4"><select name="med_id[]" class="form-select form-select-sm"><option value="">Medicamento...</option><?php foreach($medicamentos as $m): ?><option value="<?= $m['id'] ?>"><?= e($m['nombre']) ?></option><?php endforeach; ?></select></div>
+                      <div class="col-md-4">
+                        <input type="text" 
+                               class="form-control form-control-sm med-input" 
+                               list="listaMedicamentos" 
+                               placeholder="Buscar medicamento..." 
+                               autocomplete="off"
+                               oninput="syncMedId(this)">
+                        <input type="hidden" name="med_id[]" class="med-hidden">
+                      </div>
                       <div class="col-md-3"><input type="text" name="med_dosis[]" class="form-control form-control-sm" placeholder="Dosis"></div>
                       <div class="col-md-2"><input type="text" name="med_frecuencia[]" class="form-control form-control-sm" placeholder="Freq."></div>
                       <div class="col-md-2"><input type="text" name="med_duracion[]" class="form-control form-control-sm" placeholder="Dur."></div>
                       <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-med"><i class="fa-solid fa-times"></i></button></div>
                     </div>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addMed()"><i class="fa-solid fa-plus me-1"></i>Agregar</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addMed()"><i class="fa-solid fa-plus me-1"></i>Agregar otro medicamento</button>
                 </div>
 
                 <div class="col-12 d-flex gap-2 mt-2">
@@ -230,7 +236,6 @@ include __DIR__ . '/../includes/sidebar.php';
         </div>
       </div>
 
-      <!-- Panel antecedentes -->
       <div class="col-lg-4">
         <div class="card mb-3">
           <div class="card-header d-flex justify-content-between align-items-center">
@@ -254,7 +259,6 @@ include __DIR__ . '/../includes/sidebar.php';
           </div>
         </div>
 
-        <!-- Agregar antecedente inline -->
         <?php $tiposAnte = $pdo->query("SELECT * FROM tipo_antecedente WHERE activo=1 ORDER BY nombre")->fetchAll(); ?>
         <?php if ($isEmergencia && !$pidPanel): ?>
         <div class="card border-warning">
@@ -267,16 +271,19 @@ include __DIR__ . '/../includes/sidebar.php';
         <div class="card">
           <div class="card-header"><h6 class="mb-0"><i class="fa-solid fa-plus me-1 text-warning"></i>Nuevo antecedente</h6></div>
           <div class="card-body">
-            <form method="POST" action="<?= BASE_URL ?>/pacientes/antecedente_add.php" id="formAnte">
+            <form method="POST" action="<?= BASE_URL ?>/pacientes/antecedente_add.php" id="formAnte" onsubmit="return validarAntecedenteAntesDeEnviar();">            
               <input type="hidden" name="paciente_id" id="antePackId" value="<?= $pidPanel ?>">
               <input type="hidden" name="redirect_url" value="<?= BASE_URL ?>/consultas/add.php<?= $citaId ? '?cita_id='.$citaId : '' ?>">
               <div class="mb-2">
-                <select name="tipo_id" class="form-select form-select-sm" required>
-                  <option value="">Tipo...</option>
-                  <?php foreach ($tiposAnte as $t): ?>
-                    <option value="<?= $t['id'] ?>"><?= e($t['nombre']) ?></option>
-                  <?php endforeach; ?>
-                </select>
+               <input type="text" 
+                       id="tipoAntecedenteInput" 
+                       class="form-control form-control-sm" 
+                       list="listaTiposAntecedentes" 
+                       placeholder="Buscar tipo de antecedente..." 
+                       autocomplete="off"
+                       oninput="syncTipoAntecedenteId()"
+                       required>
+                <input type="hidden" name="tipo_id" id="tipoAntecedenteId">
               </div>
               <div class="mb-2">
                 <textarea name="descripcion" class="form-control form-control-sm" rows="2" placeholder="Descripción *" required></textarea>
@@ -296,33 +303,116 @@ include __DIR__ . '/../includes/sidebar.php';
   </div>
 </div>
 
+<datalist id="listaMedicamentos">
+  <?php foreach($medicamentos as $m): ?>
+    <option data-id="<?= $m['id'] ?>" value="<?= e($m['nombre']) ?>"></option>
+  <?php endforeach; ?>
+</datalist>
+<datalist id="listaTiposAntecedentes">
+  <?php foreach ($tiposAnte as $t): ?>
+    <option data-id="<?= $t['id'] ?>" value="<?= e($t['nombre']) ?>"></option>
+  <?php endforeach; ?>
+</datalist>
+
 <script>
 function toggleEmergencia(checked) {
   const panel = document.getElementById('panelEmergencia');
   const selPac = document.getElementById('selectPaciente');
-  panel.classList.toggle('d-none', !checked);
-  selPac.required = !checked;
-  if (checked) selPac.value = '';
+  if(selPac) {
+    panel.classList.toggle('d-none', !checked);
+    selPac.required = !checked;
+    if (checked) selPac.value = '';
+  }
 }
 
+// 🛑 Sincronización del input dinámico con su ID oculto
+function syncMedId(inputElement) {
+    const parent = inputElement.closest('.med-row');
+    const hiddenInput = parent.querySelector('.med-hidden');
+    const options = document.querySelectorAll('#listaMedicamentos option');
+    
+    hiddenInput.value = ""; // Resetear si no coincide exactamente
+    for (const option of options) {
+        if (option.value.toLowerCase() === inputElement.value.toLowerCase()) {
+            hiddenInput.value = option.getAttribute('data-id');
+            break;
+        }
+    }
+}
+
+// 🛑 Template de fila de medicamento modificado (Usa el mismo datalist)
 const medRowHtml = `<div class="row g-2 mb-2 med-row align-items-center">
-  <div class="col-md-4"><select name="med_id[]" class="form-select form-select-sm"><option value="">Medicamento...</option><?php foreach($medicamentos as $m): ?><option value="<?= $m['id'] ?>"><?= e($m['nombre']) ?></option><?php endforeach; ?></select></div>
+  <div class="col-md-4">
+    <input type="text" 
+           class="form-control form-control-sm med-input" 
+           list="listaMedicamentos" 
+           placeholder="Buscar medicamento..." 
+           autocomplete="off"
+           oninput="syncMedId(this)">
+    <input type="hidden" name="med_id[]" class="med-hidden">
+  </div>
   <div class="col-md-3"><input type="text" name="med_dosis[]" class="form-control form-control-sm" placeholder="Dosis"></div>
   <div class="col-md-2"><input type="text" name="med_frecuencia[]" class="form-control form-control-sm" placeholder="Freq."></div>
   <div class="col-md-2"><input type="text" name="med_duracion[]" class="form-control form-control-sm" placeholder="Dur."></div>
   <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-med"><i class="fa-solid fa-times"></i></button></div>
 </div>`;
 
-function addMed() { document.getElementById('meds-container').insertAdjacentHTML('beforeend', medRowHtml); }
+function addMed() { 
+    document.getElementById('meds-container').insertAdjacentHTML('beforeend', medRowHtml); 
+}
+
 document.getElementById('meds-container').addEventListener('click', e => {
   if (e.target.closest('.remove-med')) e.target.closest('.med-row').remove();
 });
+
+function validarMedsAntesDeEnviar() {
+    const rows = document.querySelectorAll('.med-row');
+    for (const row of rows) {
+        const textVal = row.querySelector('.med-input').value.trim();
+        const hiddenVal = row.querySelector('.med-hidden').value;
+        
+        // Si escribió algo pero no seleccionó un elemento válido de la lista
+        if (textVal !== "" && hiddenVal === "") {
+            alert(`El medicamento "${textVal}" no es válido. Por favor, selecciónalo de la lista autocompletable.`);
+            row.querySelector('.med-input').focus();
+            return false;
+        }
+    }
+    return true;
+}
 
 function loadAntecedentes(pid) {
   const panel = document.getElementById('antecedentes-panel');
   if (!pid) { panel.innerHTML='<p class="text-muted small text-center py-2">Selecciona un paciente</p>'; return; }
   fetch('<?= BASE_URL ?>/consultas/get_antecedentes.php?paciente_id=' + pid)
     .then(r=>r.text()).then(html=>{ panel.innerHTML=html; });
+}
+
+function syncTipoAntecedenteId() {
+    const input = document.getElementById('tipoAntecedenteInput');
+    const hidden = document.getElementById('tipoAntecedenteId');
+    if(!input) return;
+    const options = document.querySelectorAll('#listaTiposAntecedentes option');
+    
+    hidden.value = ""; // Resetear si no hay coincidencia exacta
+    for (const option of options) {
+        if (option.value.toLowerCase() === input.value.toLowerCase()) {
+            hidden.value = option.getAttribute('data-id');
+            break;
+        }
+    }
+}
+
+function validarAntecedenteAntesDeEnviar() {
+    const textVal = document.getElementById('tipoAntecedenteInput').value.trim();
+    const hiddenVal = document.getElementById('tipoAntecedenteId').value;
+    
+    if (textVal !== "" && hiddenVal === "") {
+        alert(`El tipo de antecedente "${textVal}" no es válido. Por favor, selecciónalo de la lista autocompletable.`);
+        document.getElementById('tipoAntecedenteInput').focus();
+        return false; // Bloquea el envío
+    }
+    return true; // Continúa con el envío de formulario
 }
 </script>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
