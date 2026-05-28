@@ -26,32 +26,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$nombre) $errors[] = 'El nombre es obligatorio.';
     if (!$apellido) $errors[] = 'El apellido es obligatorio.';
-    if (!ctype_digit($cedula)) {
-        $errors[] = 'La cédula debe contener solo números.';
-    } elseif (strlen($cedula) > 8) {
-        $errors[] = 'La cédula no puede superar los 8 caracteres.';
+    
+    if (!empty($cedula)) {
+        if (!ctype_digit($cedula)) {
+            $errors[] = 'La cédula debe contener solo números.';
+        } elseif (strlen($cedula) > 8) {
+            $errors[] = 'La cédula no puede superar los 8 caracteres.';
+        }
     }
-    if (!ctype_digit($tel)) {
-        $errors[] = 'El teléfono debe contener solo números.';
-    } elseif (strlen($tel) > 11) {
-        $errors[] = 'El teléfono no puede superar los 11 caracteres.';
+    
+    if (!empty($tel)) {
+        if (!ctype_digit($tel)) {
+            $errors[] = 'El teléfono debe contener solo números.';
+        } elseif (strlen($tel) > 11) {
+            $errors[] = 'El teléfono no puede superar los 11 caracteres.';
+        }
     }
 
     $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM pacientes WHERE cedula = ? AND id != ?");
-        $stmtCheck->execute([$cedula, $id]); // $id es el ID del paciente que se está editando
-        $cedulaExiste = $stmtCheck->fetchColumn();
+    $stmtCheck->execute([$cedula, $id]); 
+    $cedulaExiste = $stmtCheck->fetchColumn();
 
-        if ($cedulaExiste > 0) {
-            $errors[] = 'La cédula ingresada ya pertenece a otro paciente registrado.';
-        }
+    if ($cedulaExiste > 0 && !empty($cedula)) {
+        $errors[] = 'La cédula ingresada ya pertenece a otro paciente registrado.';
+    }
 
     if (!$errors) {
         $upd = $pdo->prepare("UPDATE pacientes SET nombre=?,apellido=?,cedula=?,fecha_nacimiento=?,genero=?,telefono=?,email=?,direccion=? WHERE id=?");
-        $upd->execute([$nombre, $apellido, $cedula ?: null, $fnac ?: null, $genero, $tel, $email, $dir, $id]);
+        $upd->execute([$nombre, $apellido, $cedula ?: null, $fnac ?: null, $genero, $tel ?: null, $email ?: null, $dir ?: null, $id]);
         setFlash('success', 'Paciente actualizado.');
         redirect(BASE_URL . '/pacientes/view.php?id=' . $id);
     }
-    $p = array_merge($p, $_POST);
+    $p = array_merge($p, $_POST); 
 }
 
 $pageTitle = 'Editar Paciente';
@@ -86,7 +92,7 @@ include __DIR__ . '/../includes/sidebar.php';
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Cédula</label>
-                  <input type="text" name="cedula" pattern="\d+" title="Solo se permiten números (máximo 8 dígitos)"  class="form-control" placeholder="Ej. 12345678" value="<?= e($_POST['cedula'] ?? '') ?>">
+                  <input type="text" name="cedula" pattern="\d+" title="Solo se permiten números (máximo 8 dígitos)" class="form-control" placeholder="Ej. 12345678" value="<?= e($p['cedula'] ?? '') ?>">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Fecha de nacimiento</label>
@@ -101,14 +107,14 @@ include __DIR__ . '/../includes/sidebar.php';
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Teléfono</label>
-                                    <input type="text" 
+                  <input type="text" 
                          name="telefono" 
                          class="form-control" 
                          placeholder="Ej. 04121234567" 
                          maxlength="11" 
                          pattern="\d+" 
                          title="Solo se permiten números (máximo 11 dígitos)"                           
-                         value="<?= e($_POST['telefono'] ?? '') ?>">
+                         value="<?= e($p['telefono'] ?? '') ?>">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Correo electrónico</label>
