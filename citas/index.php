@@ -63,7 +63,9 @@ include __DIR__ . '/../includes/sidebar.php';
           <table class="table table-hover mb-0">
             <thead><tr><th>Fecha</th><th>Paciente</th><th>Especialista</th><th>Especialidad</th><th>Motivo</th><th>Status</th><th>Acciones</th></tr></thead>
             <tbody>
-            <?php foreach ($citas as $c): ?>
+            <?php foreach ($citas as $c): 
+              $isCompletada = (isset($c['estado_nombre']) && strtolower(trim($c['estado_nombre'])) === 'completada');
+            ?>
               <tr>
                 <td><?= formatDate($c['fecha']) ?></td>
                 <td><a href="<?= BASE_URL ?>/pacientes/view.php?id=<?= $c['paciente_id'] ?>" class="text-decoration-none"><?= e($c['paciente']) ?></a></td>
@@ -73,19 +75,25 @@ include __DIR__ . '/../includes/sidebar.php';
                 <td><span class="badge bg-<?= e($c['estado_color']??'secondary') ?>"><?= e($c['estado_nombre']??'-') ?></span></td>
                 <td>
                   <?php if (!$isUsr): ?>
-                    <a href="<?= BASE_URL ?>/citas/edit.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar"><i class="fa-solid fa-pen"></i></a>
+                    <?php if ($isCompletada): ?>
+                      <button class="btn btn-sm btn-light text-muted me-1" title="Cita completada - No se puede editar" disabled><i class="fa-solid fa-pen"></i></button>
+                      <button class="btn btn-sm btn-light text-muted me-1" title="Esta consulta ya fue realizada" disabled><i class="fa-solid fa-stethoscope"></i></button>
+                    <?php else: ?>
+                      <a href="<?= BASE_URL ?>/citas/edit.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar"><i class="fa-solid fa-pen"></i></a>
+                      <a href="<?= BASE_URL ?>/consultas/add.php?cita_id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-success me-1" title="Iniciar consulta"><i class="fa-solid fa-stethoscope"></i></a>
+                    <?php endif; ?>
                   <?php endif; ?>
-                  <?php if (!$isUsr): ?>
-                    <a href="<?= BASE_URL ?>/consultas/add.php?cita_id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-success me-1" title="Iniciar consulta"><i class="fa-solid fa-stethoscope"></i></a>
-                  <?php endif; ?>
+
                   <?php if ($isUsr): ?>
                     <?php
                     $canceladaId = null;
                     foreach ($statuses as $s) { if (strtolower($s['nombre']) === 'cancelada') { $canceladaId = $s['id']; break; } }
                     $yaCancel = strtolower($c['estado_nombre'] ?? '') === 'cancelada';
                     ?>
-                    <?php if (!$yaCancel && $canceladaId): ?>
+                    <?php if (!$yaCancel && $canceladaId && !$isCompletada): ?>
                       <a href="<?= BASE_URL ?>/citas/cancel.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger" data-confirm="¿Cancelar esta cita?"><i class="fa-solid fa-ban me-1"></i>Cancelar</a>
+                    <?php else: ?>
+                      <small class="text-muted"><i class="fa-solid fa-lock"></i> Sin acciones</small>
                     <?php endif; ?>
                   <?php else: ?>
                     <a href="<?= BASE_URL ?>/citas/delete.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger" data-confirm="¿Eliminar esta cita?"><i class="fa-solid fa-trash"></i></a>

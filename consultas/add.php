@@ -44,8 +44,8 @@ $errors = [];
 $emergenciaMsg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $paciente_id    = (int)$_POST['paciente_id'];
-    $especialista_id = (int)$_POST['especialista_id'];
+    $paciente_id    = (int)($_POST['paciente_id'] ?? 0);
+    $especialista_id = (int)($_POST['especialista_id'] ?? 0);
     $motivo         = trim($_POST['motivo_consulta'] ?? '');
     $diagnostico    = trim($_POST['diagnostico'] ?? '');
     $tratamiento    = trim($_POST['tratamiento'] ?? '');
@@ -123,7 +123,7 @@ include __DIR__ . '/../includes/sidebar.php';
         <div class="card">
           <div class="card-header"><h5>Datos de la Consulta</h5></div>
           <div class="card-body">
-            <form method="POST" id="formConsulta" onsubmit="return validarMedsAntesDeEnviar();">
+            <form method="POST" id="formConsulta" onsubmit="return validarFormularioConsulta();">
               <input type="hidden" name="cita_id" value="<?= $citaId ?>">
               <div class="row g-3">
 
@@ -133,14 +133,14 @@ include __DIR__ . '/../includes/sidebar.php';
                     <input type="hidden" name="paciente_id" value="<?= $cita['paciente_id'] ?>">
                     <input type="text" class="form-control" value="<?= e($cita['paciente_nombre']) ?>" readonly>
                   <?php else: ?>
-                    <select name="paciente_id" id="selectPaciente" class="form-select" onchange="loadAntecedentes(this.value)">
-                      <option value="">Seleccionar...</option>
-                      <?php foreach ($pacientes as $pac):
-                        $sel = ($preselPaciente ?? $_POST['paciente_id'] ?? 0) == $pac['id'];
-                      ?>
-                        <option value="<?= $pac['id'] ?>" <?= $sel?'selected':'' ?>><?= e($pac['nombre']) ?></option>
-                      <?php endforeach; ?>
-                    </select>
+                    <input type="text" 
+                           id="selectPacienteInput" 
+                           class="form-control text-start" 
+                           list="listaPacientes" 
+                           placeholder="Buscar paciente..." 
+                           autocomplete="off"
+                           oninput="syncPacienteId(this.value)">
+                    <input type="hidden" name="paciente_id" id="selectPaciente" value="<?= $preselPaciente ?: '' ?>">
                   <?php endif; ?>
                 </div>
 
@@ -153,14 +153,15 @@ include __DIR__ . '/../includes/sidebar.php';
                     <input type="hidden" name="especialista_id" value="<?= $medicoEspecialista['id'] ?>">
                     <input type="text" class="form-control" value="<?= e($medicoEspecialista['nombre']) ?>" readonly>
                   <?php else: ?>
-                    <select name="especialista_id" class="form-select" required>
-                      <option value="">Seleccionar...</option>
-                      <?php foreach ($especialistas as $esp):
-                        $sel = ($_POST['especialista_id'] ?? 0) == $esp['id'];
-                      ?>
-                        <option value="<?= $esp['id'] ?>" <?= $sel?'selected':'' ?>><?= e($esp['nombre']) ?></option>
-                      <?php endforeach; ?>
-                    </select>
+                    <!-- NVO: Reemplazado selector nativo por input autocompletable con datalist -->
+                    <input type="text" 
+                           id="selectEspecialistaInput" 
+                           class="form-control text-start" 
+                           list="listaEspecialistas" 
+                           placeholder="Buscar especialista..." 
+                           autocomplete="off"
+                           oninput="syncEspecialistaId(this.value)">
+                    <input type="hidden" name="especialista_id" id="selectEspecialista">
                   <?php endif; ?>
                 </div>
 
@@ -177,8 +178,8 @@ include __DIR__ . '/../includes/sidebar.php';
                     </div>
                     <div class="card-body d-none" id="panelEmergencia">
                       <div class="row g-2">
-                        <div class="col-md-4"><label class="form-label">Nombre *</label><input type="text" name="em_nombre" class="form-control form-control-sm"></div>
-                        <div class="col-md-4"><label class="form-label">Apellido *</label><input type="text" name="em_apellido" class="form-control form-control-sm"></div>
+                        <div class="col-md-4"><label class="form-label">Nombre *</label><input type="text" name="em_nombre" id="em_nombre" class="form-control form-control-sm"></div>
+                        <div class="col-md-4"><label class="form-label">Apellido *</label><input type="text" name="em_apellido" id="em_apellido" class="form-control form-control-sm"></div>
                         <div class="col-md-4"><label class="form-label">Cédula</label><input type="text" name="em_cedula" class="form-control form-control-sm"></div>
                       </div>
                       <small class="text-muted">Se creará el paciente automáticamente al guardar la consulta.</small>
@@ -303,44 +304,139 @@ include __DIR__ . '/../includes/sidebar.php';
   </div>
 </div>
 
-<datalist id="listaMedicamentos">
-  <?php foreach($medicamentos as $m): ?>
-    <option data-id="<?= $m['id'] ?>" value="<?= e($m['nombre']) ?>"></option>
+<datalist id="listaPacientes">
+  <?php foreach($pacientes as $pac): ?>
+    <option class="opcion-paciente" data-id="<?= $pac['id'] ?>" value="<?= e($pac['nombre']) ?>"></option>
   <?php endforeach; ?>
 </datalist>
+
+<datalist id="listaEspecialistas">
+  <?php foreach($especialistas as $esp): ?>
+    <option class="opcion-especialista" data-id="<?= $esp['id'] ?>" value="<?= e($esp['nombre']) ?>"></option>
+  <?php endforeach; ?>
+</datalist>
+<datalist id="listaMedicamentos">
+  <?php foreach($medicamentos as $m): ?>
+    <option class="opcion-medicamento" data-id="<?= $m['id'] ?>" value="<?= e($m['nombre']) ?>"></option>
+  <?php endforeach; ?>
+</datalist>
+
 <datalist id="listaTiposAntecedentes">
   <?php foreach ($tiposAnte as $t): ?>
-    <option data-id="<?= $t['id'] ?>" value="<?= e($t['nombre']) ?>"></option>
+    <option class="opcion-antecedente" data-id="<?= $t['id'] ?>" value="<?= e($t['nombre']) ?>"></option>
   <?php endforeach; ?>
 </datalist>
 
 <script>
 function toggleEmergencia(checked) {
   const panel = document.getElementById('panelEmergencia');
-  const selPac = document.getElementById('selectPaciente');
-  if(selPac) {
+  const selPacInput = document.getElementById('selectPacienteInput');
+  const selPacHidden = document.getElementById('selectPaciente');
+  const emNombre = document.getElementById('em_nombre');
+  const emApellido = document.getElementById('em_apellido');
+
+  if(panel) {
     panel.classList.toggle('d-none', !checked);
-    selPac.required = !checked;
-    if (checked) selPac.value = '';
+    if(selPacInput) {
+        selPacInput.disabled = checked;
+        if(checked) {
+            selPacInput.value = '';
+            selPacHidden.value = '';
+            emNombre.required = true;
+            emApellido.required = true;
+            loadAntecedentes('');
+        } else {
+            emNombre.required = false;
+            emApellido.required = false;
+        }
+    }
   }
 }
 
-// 🛑 Sincronización del input dinámico con su ID oculto
-function syncMedId(inputElement) {
-    const parent = inputElement.closest('.med-row');
-    const hiddenInput = parent.querySelector('.med-hidden');
-    const options = document.querySelectorAll('#listaMedicamentos option');
-    
-    hiddenInput.value = ""; // Resetear si no coincide exactamente
+function syncPacienteId(valorInput) {
+    const hiddenInput = document.getElementById('selectPaciente');
+    const options = document.querySelectorAll('.opcion-paciente');
+    if(!hiddenInput) return;
+
+    hiddenInput.value = "";
+    let mostrados = 0;
+    const maxVisibles = 10;
+    const filtro = valorInput.toLowerCase();
+
     for (const option of options) {
-        if (option.value.toLowerCase() === inputElement.value.toLowerCase()) {
-            hiddenInput.value = option.getAttribute('data-id');
-            break;
+        const valorOpcion = option.value.toLowerCase();
+        if (valorOpcion.includes(filtro)) {
+            if (valorOpcion === filtro) {
+                hiddenInput.value = option.getAttribute('data-id');
+                loadAntecedentes(hiddenInput.value); // Dispara la carga de antecedentes
+            }
+            if (mostrados < maxVisibles) {
+                option.disabled = false;
+                mostrados++;
+            } else {
+                option.disabled = true;
+            }
+        } else {
+            option.disabled = true;
+        }
+    }
+    if(filtro === "") loadAntecedentes('');
+}
+function syncEspecialistaId(valorInput) {
+    const hiddenInput = document.getElementById('selectEspecialista');
+    const options = document.querySelectorAll('.opcion-especialista');
+    if(!hiddenInput) return;
+
+    hiddenInput.value = "";
+    let mostrados = 0;
+    const maxVisibles = 10;
+    const filtro = valorInput.toLowerCase();
+
+    for (const option of options) {
+        const valorOpcion = option.value.toLowerCase();
+        if (valorOpcion.includes(filtro)) {
+            if (valorOpcion === filtro) {
+                hiddenInput.value = option.getAttribute('data-id');
+            }
+            if (mostrados < maxVisibles) {
+                option.disabled = false;
+                mostrados++;
+            } else {
+                option.disabled = true;
+            }
+        } else {
+            option.disabled = true;
         }
     }
 }
 
-// 🛑 Template de fila de medicamento modificado (Usa el mismo datalist)
+function syncMedId(inputElement) {
+    const parent = inputElement.closest('.med-row');
+    const hiddenInput = parent.querySelector('.med-hidden');
+    const options = document.querySelectorAll('.opcion-medicamento');
+    
+    hiddenInput.value = ""; 
+    let mostrados = 0;
+    const maxVisibles = 10;
+    const filtro = inputElement.value.toLowerCase();
+
+    for (const option of options) {
+        const valorOpcion = option.value.toLowerCase();
+        if (valorOpcion.includes(filtro)) {
+            if (valorOpcion === filtro) {
+                hiddenInput.value = option.getAttribute('data-id');
+            }
+            if (mostrados < maxVisibles) {
+                option.disabled = false;
+                mostrados++;
+            } else {
+                option.disabled = true;
+            }
+        } else {
+            option.disabled = true;
+        }
+    }
+}
 const medRowHtml = `<div class="row g-2 mb-2 med-row align-items-center">
   <div class="col-md-4">
     <input type="text" 
@@ -359,21 +455,42 @@ const medRowHtml = `<div class="row g-2 mb-2 med-row align-items-center">
 
 function addMed() { 
     document.getElementById('meds-container').insertAdjacentHTML('beforeend', medRowHtml); 
+    const inputs = document.querySelectorAll('.med-input');
+    if(inputs.length > 0) syncMedId(inputs[inputs.length - 1]);
 }
 
 document.getElementById('meds-container').addEventListener('click', e => {
   if (e.target.closest('.remove-med')) e.target.closest('.med-row').remove();
 });
 
-function validarMedsAntesDeEnviar() {
+function validarFormularioConsulta() {
+    const chkEmergencia = document.getElementById('chkEmergencia');
+    const pacienteInput = document.getElementById('selectPacienteInput');
+    if (pacienteInput && (!chkEmergencia || !chkEmergencia.checked)) {
+        const txtPac = pacienteInput.value.trim();
+        const idPac = document.getElementById('selectPaciente').value;
+        if (txtPac !== "" && idPac === "") {
+            alert(`El paciente "${txtPac}" no es válido. Por favor, selecciónalo de la lista.`);
+            pacienteInput.focus();
+            return false;
+        }
+    }
+    const espInput = document.getElementById('selectEspecialistaInput');
+    if (espInput) {
+        const txtEsp = espInput.value.trim();
+        const idEsp = document.getElementById('selectEspecialista').value;
+        if (txtEsp !== "" && idEsp === "") {
+            alert(`El especialista "${txtEsp}" no es válido. Por favor, selecciónalo de la lista.`);
+            espInput.focus();
+            return false;
+        }
+    }
     const rows = document.querySelectorAll('.med-row');
     for (const row of rows) {
         const textVal = row.querySelector('.med-input').value.trim();
         const hiddenVal = row.querySelector('.med-hidden').value;
-        
-        // Si escribió algo pero no seleccionó un elemento válido de la lista
         if (textVal !== "" && hiddenVal === "") {
-            alert(`El medicamento "${textVal}" no es válido. Por favor, selecciónalo de la lista autocompletable.`);
+            alert(`El medicamento "${textVal}" no es válido. Por favor, selecciónalo de la lista.`);
             row.querySelector('.med-input').focus();
             return false;
         }
@@ -392,13 +509,27 @@ function syncTipoAntecedenteId() {
     const input = document.getElementById('tipoAntecedenteInput');
     const hidden = document.getElementById('tipoAntecedenteId');
     if(!input) return;
-    const options = document.querySelectorAll('#listaTiposAntecedentes option');
     
-    hidden.value = ""; // Resetear si no hay coincidencia exacta
+    const options = document.querySelectorAll('.opcion-antecedente');
+    hidden.value = ""; 
+    let mostrados = 0;
+    const maxVisibles = 10;
+    const filtro = input.value.toLowerCase();
+
     for (const option of options) {
-        if (option.value.toLowerCase() === input.value.toLowerCase()) {
-            hidden.value = option.getAttribute('data-id');
-            break;
+        const valorOpcion = option.value.toLowerCase();
+        if (valorOpcion.includes(filtro)) {
+            if (option.value.toLowerCase() === filtro) {
+                hidden.value = option.getAttribute('data-id');
+            }
+            if (mostrados < maxVisibles) {
+                option.disabled = false;
+                mostrados++;
+            } else {
+                option.disabled = true;
+            }
+        } else {
+            option.disabled = true;
         }
     }
 }
@@ -414,5 +545,18 @@ function validarAntecedenteAntesDeEnviar() {
     }
     return true; // Continúa con el envío de formulario
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const pInput = document.getElementById('selectPacienteInput');
+    if(pInput) syncPacienteId(pInput.value);
+
+    const eInput = document.getElementById('selectEspecialistaInput');
+    if(eInput) syncEspecialistaId(eInput.value);
+
+    const primerMedInput = document.querySelector('.med-input');
+    if(primerMedInput) syncMedId(primerMedInput);
+
+    syncTipoAntecedenteId();
+});
 </script>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

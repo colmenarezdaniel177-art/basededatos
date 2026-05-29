@@ -141,46 +141,75 @@ include __DIR__ . '/../includes/sidebar.php';
 
 <datalist id="listaPacientes">
   <?php foreach ($pacientes as $pac): ?>
-    <option data-id="<?= $pac['id'] ?>" value="<?= e($pac['nombre']) ?>"></option>
+    <option class="opcion-paciente" data-id="<?= $pac['id'] ?>" value="<?= e($pac['nombre']) ?>"></option>
   <?php endforeach; ?>
 </datalist>
 
 <datalist id="listaEspecialistas">
-  <?php foreach ($especialistas as $esp): ?>
-    <option data-id="<?= $esp['id'] ?>" value="<?= e($esp['nombre']) ?> — <?= e($esp['especialidad']) ?>"></option>
+  <?php foreach($especialistas as $esp): ?>
+    <option class="opcion-especialista" data-id="<?= $esp['id'] ?>" value="<?= e($esp['nombre']) ?> — <?= e($esp['especialidad']) ?>"></option>
   <?php endforeach; ?>
 </datalist>
 
 <script>
-// 🛑 Sincronizar Paciente
 function syncPacienteId() {
     const input = document.getElementById('pacienteInput');
     const hidden = document.getElementById('pacienteId');
-    const options = document.querySelectorAll('#listaPacientes option');
+    const options = document.querySelectorAll('.opcion-paciente');
     
     hidden.value = ""; 
+    let mostrados = 0;
+    const maxVisibles = 10; 
+    const filtro = input.value.toLowerCase();
+
     for (const option of options) {
-        if (option.value.toLowerCase() === input.value.toLowerCase()) {
-            hidden.value = option.getAttribute('data-id');
-            break;
+        const valorOpcion = option.value.toLowerCase();
+        if (valorOpcion.includes(filtro)) {
+            if (valorOpcion === filtro) {
+                hidden.value = option.getAttribute('data-id');
+            }
+            if (mostrados < maxVisibles) {
+                option.disabled = false; 
+                mostrados++;
+            } else {
+                option.disabled = true; 
+            }
+        } else {
+            option.disabled = true; 
         }
     }
 }
 
-// 🛑 Sincronizar Especialista y re-chequear horarios
+
 function syncEspecialistaId() {
     const input = document.getElementById('especialistaInput');
     const hidden = document.getElementById('selectEsp');
-    const options = document.querySelectorAll('#listaEspecialistas option');
+    if (!input) return; 
+    
+    const options = document.querySelectorAll('.opcion-especialista');
     
     hidden.value = ""; 
+    let mostrados = 0;
+    const maxVisibles = 10;
+    const filtro = input.value.toLowerCase();
+
     for (const option of options) {
-        if (option.value.toLowerCase() === input.value.toLowerCase()) {
-            hidden.value = option.getAttribute('data-id');
-            break;
+        const valorOpcion = option.value.toLowerCase();
+        if (valorOpcion.includes(filtro)) {            
+            if (valorOpcion === filtro) {
+                hidden.value = option.getAttribute('data-id');
+            }            
+            if (mostrados < maxVisibles) {
+                option.disabled = false; 
+                mostrados++;
+            } else {
+                option.disabled = true; 
+            }
+        } else {
+            option.disabled = true; 
         }
     }
-    validarHorario();
+    validarHorario(); 
 }
 
 function validarHorario() {
@@ -241,7 +270,8 @@ function validarAntesDeEnviar() {
 
 // Ejecutar validación inicial al cargar la página
 document.addEventListener("DOMContentLoaded", function() {
-    validarHorario();
+    syncPacienteId();
+    syncEspecialistaId();
 });
 </script>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

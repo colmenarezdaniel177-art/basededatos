@@ -79,7 +79,15 @@ include __DIR__ . '/../includes/sidebar.php';
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Cédula</label>
-                  <input type="text" name="cedula" pattern="\d+" title="Solo se permiten números (máximo 8 dígitos)"  class="form-control" placeholder="Ej. 12345678" value="<?= e($_POST['cedula'] ?? '') ?>">
+                  <input type="text" 
+                    name="cedula" 
+                    pattern="\d+" 
+                    maxlength="8" 
+                    minlength="8"
+                    title="Solo se permiten números (máximo 8 dígitos)"  
+                    class="form-control" 
+                    placeholder="Ej. 12345678" 
+                    value="<?= e($_POST['cedula'] ?? '') ?>">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Fecha de nacimiento</label>
@@ -99,6 +107,7 @@ include __DIR__ . '/../includes/sidebar.php';
                          class="form-control" 
                          placeholder="Ej. 04121234567" 
                          maxlength="11" 
+                         minlength="11"
                          pattern="\d+" 
                          title="Solo se permiten números (máximo 11 dígitos)"                           
                          value="<?= e($_POST['telefono'] ?? '') ?>">

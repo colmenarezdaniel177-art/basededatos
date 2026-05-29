@@ -118,8 +118,8 @@ include __DIR__ . '/../includes/sidebar.php';
 </div>
 
 <datalist id="listaEspecialidades">
-  <?php foreach($especialidades as $esp): ?>
-    <option data-id="<?= $esp['id'] ?>" value="<?= e($esp['nombre']) ?>"></option>
+  <?php foreach ($especialidades as $esp): ?>
+    <option class="opcion-especialidad-item" data-id="<?= $esp['id'] ?>" value="<?= e($esp['nombre']) ?>"></option>
   <?php endforeach; ?>
 </datalist>
 
@@ -197,16 +197,32 @@ document.getElementById('filterEsp').addEventListener('input', function() {
 
 const dias = <?= json_encode($diasSemana) ?>;
 
-function syncEspecialidadId(modalPrefix) {
-    const input = document.getElementById(modalPrefix + 'EspInput');
-    const hidden = document.getElementById(modalPrefix + 'EspId');
-    const options = document.querySelectorAll('#listaEspecialidades option');
+function syncEspecialidadId() {
+    const input = document.getElementById('especialidadInput'); 
+    const hidden = document.getElementById('especialidadId');   
+    if (!input || !hidden) return; 
     
-    hidden.value = ""; // Por defecto vacío si no coincide
+    const options = document.querySelectorAll('.opcion-especialidad-item');
+    
+    hidden.value = ""; 
+    let mostrados = 0;
+    const maxVisibles = 10; 
+    const filtro = input.value.toLowerCase();
+
     for (const option of options) {
-        if (option.value.toLowerCase() === input.value.toLowerCase()) {
-            hidden.value = option.getAttribute('data-id');
-            break;
+        const valorOpcion = option.value.toLowerCase();
+        if (valorOpcion.includes(filtro)) {            
+            if (valorOpcion === filtro) {
+                hidden.value = option.getAttribute('data-id');
+            }
+            if (mostrados < maxVisibles) {
+                option.disabled = false; 
+                mostrados++;
+            } else {
+                option.disabled = true;  
+            }
+        } else {
+            option.disabled = true; 
         }
     }
 }
@@ -277,5 +293,9 @@ function addHorarioRow(dia='',hi='',hf='') {
       <div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.horario-row').remove()"><i class="fa-solid fa-times"></i></button></div>`;
     document.getElementById('horariosContainer').appendChild(row);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    syncEspecialidadId();
+});
 </script>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
